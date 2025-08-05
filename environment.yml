@@ -1,0 +1,12 @@
+name: chatbot-env
+channels:
+  - pytorch
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11  # Stable latest major Python release compatible with most libs
+  - numpy=1.26.4  # Latest stable NumPy version (Jan 2025)
+  - pandas=2.2.2  # Latest stable pandas (early 2025)
+  - scikit-learn=1.4.2  # Latest stable scikit-learn
+  - faiss-cpu=1.8.0  # Latest faiss-cpu in pytorch channel
+  - pip
