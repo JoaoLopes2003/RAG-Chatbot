@@ -12,26 +12,26 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!menuOpen) {
             // Close the menu
             header.classList.add('full-width');
-            navbar.classList.add('active');
+            navbar.classList.add('inactive');
             if (!searchEngineContainer.classList.contains('active')) {
-                chatbot.style.marginLeft = '0'
-                chatbot.style.marginRight = '0'
+                chatbot.style.left = '0'
+                chatbot.style.width = '100vw'
             } else {
-                chatbot.style.marginLeft = '0'
-                chatbot.style.marginRight = '22vw'
+                chatbot.style.left = '0'
+                chatbot.style.width = '78vw'
             }
             arrow.classList.add('rotate-180');
             menuOpen = true;
         } else {
             // Open the menu
             header.classList.remove('full-width');
-            navbar.classList.remove('active');
+            navbar.classList.remove('inactive');
             if (!searchEngineContainer.classList.contains('active')) {
-                chatbot.style.marginLeft = '18vw'
-                chatbot.style.marginRight = '0'
+                chatbot.style.left = '18vw'
+                chatbot.style.width = '82vw'
             } else {
-                chatbot.style.marginLeft = '18vw'
-                chatbot.style.marginRight = '22vw'
+                chatbot.style.left = '18vw'
+                chatbot.style.width = '60vw'
             }
             arrow.classList.remove('rotate-180');
             menuOpen = false;
@@ -73,24 +73,24 @@ document.addEventListener('DOMContentLoaded', function () {
             // Open the filters tab
             searchEngineContainer.classList.add('active');
             filtersButton.classList.add('active')
-            if (!navbar.classList.contains('active')) {
-                chatbot.style.marginLeft = '0'
-                chatbot.style.marginRight = '22vw'
+            if (!navbar.classList.contains('inactive')) {
+                chatbot.style.left = '18vw'
+                chatbot.style.width = '60vw'
             } else {
-                chatbot.style.marginLeft = '18vw'
-                chatbot.style.marginRight = '22vw'
+                chatbot.style.left = '0vw'
+                chatbot.style.width = '78vw'
             }
             filtersOpen = true;
         } else {
             // Close the filters tab
             searchEngineContainer.classList.remove('active');
             filtersButton.classList.remove('active')
-            if (!navbar.classList.contains('active')) {
-                chatbot.style.marginLeft = '0'
-                chatbot.style.marginRight = '0'
+            if (!navbar.classList.contains('inactive')) {
+                chatbot.style.left = '18vw'
+                chatbot.style.width = '82vw'
             } else {
-                chatbot.style.marginLeft = '18vw'
-                chatbot.style.marginRight = '0'
+                chatbot.style.left = '0'
+                chatbot.style.width = '100vw'
             }
             filtersOpen = false;
         }
