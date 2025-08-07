@@ -2,10 +2,39 @@ extends layout
 
 block content
     .index-wrapper
-        .nav-bar
-            .logo-container
-                img(src='/images/logo.svg', alt='Logo')
-                .button-close-navbar &#x2B05;
+        .header
+            img(src='/images/logo.svg', alt='Logo')
+        .navbar
+            .navbar-container-1
+                span Menu
+                .navbar-menu-container
+                    a(href='/dashboard').menu-option
+                        img(src='/images/icon-dashboard.svg', alt='Dashboard Icon')
+                        span Dashboard
+                    a(href='/profile').menu-option
+                        img(src='/images/profile-icon.svg', alt='Profile Icon')
+                        span Profile
+                    a(href='/chatbot').menu-option
+                        img(src='/images/icon-chatbot.svg', alt='Chatbot Icon')
+                        span Chatbot
+                    a(href='/settings').menu-option
+                        img(src='/images/icon-settings.svg', alt='Settings Icon')
+                        span Settings
+                    a(href='/logout').menu-option
+                        img(src='/images/icon-logout.svg', alt='Logout Icon')
+                        span Logout
+            .navbar-container-2.button-close-navbar
+                .arrow-left
         .chatbot
-            p OK
-            
+            .chat-container
+                span Hi, what can I help you with?
+                form(action="/").chatbox
+                    textarea#message(placeholder="How can I help you today?" maxlength="1000")
+                    .buttons-chat
+                        .button-chat-filters
+                            img(src='/images/icon-filter.svg', alt='Filter Icon')
+                        button(type="submit")
+                            | &#x2191;
+            .search-engine-container
+                span OLA
+                        
