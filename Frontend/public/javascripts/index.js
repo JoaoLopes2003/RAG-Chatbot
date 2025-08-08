@@ -44,27 +44,6 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 document.addEventListener('DOMContentLoaded', function () {
-    const form = document.querySelector('.chatbox');
-    const textarea = form.querySelector('textarea');
-    const button = form.querySelector('button');
-
-    form.addEventListener('submit', function (e) {
-        if (!textarea.value.trim()) {
-            e.preventDefault(); // stop submission
-        }
-    });
-
-    // Update button cursor based on textarea input
-    textarea.addEventListener('input', function () {
-        if (textarea.value.trim()) {
-            button.classList.add('button-valid')
-        } else {
-            button.classList.remove('button-valid')
-        }
-    });
-});
-
-document.addEventListener('DOMContentLoaded', function () {
     const searchEngineContainer = document.querySelector('.search-engine-container');
     const filtersButton = document.querySelector('.button-chat-filters img');
     const chatbot = document.querySelector('.chatbot');

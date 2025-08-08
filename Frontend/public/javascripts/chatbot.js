@@ -22,6 +22,15 @@ class ChatBot {
                 this.sendMessage();
             }
         });
+
+        // Update button cursor based on textarea input
+        this.textarea.addEventListener('input', () => {
+            if (this.textarea.value.trim()) {
+                this.sendButton.classList.add('button-valid')
+            } else {
+                this.sendButton.classList.remove('button-valid')
+            }
+        });
     }
     
     async sendMessage() {
@@ -33,6 +42,7 @@ class ChatBot {
         
         // Clear textarea
         this.textarea.value = '';
+        this.sendButton.classList.remove('button-valid')
         
         try {
             // Send request to server
