@@ -28,12 +28,12 @@ block content
         .chatbot
             .chat-container
                 span Hi, what can I help you with?
-                form(action="/").chatbox
+                form#chatForm(action="/").chatbox
                     textarea#message(placeholder="How can I help you today?" maxlength="1000")
                     .buttons-chat
                         .button-chat-filters
                             img(src='/images/icon-filter.svg', alt='Filter Icon')
-                        button(type="submit")
+                        button#sendButton(type="submit")
                             | &#x2191;
             .search-engine-container
                 span OLA
