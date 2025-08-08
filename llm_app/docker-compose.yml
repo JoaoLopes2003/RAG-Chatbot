@@ -1,0 +1,24 @@
+services:
+  ollama:
+    image: ollama/ollama
+    volumes:
+      - ollama_data:/root/.ollama  # Persistent model storage
+    entrypoint: >
+      bash -c "
+      ollama serve &
+      sleep 10 &&
+      ollama run llama3.2:3b &&
+      wait
+      "
+
+  api:
+    build: .
+    ports:
+      - "3002:3002"  # FastAPI exposed on this port
+    depends_on:
+      - ollama
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+
+volumes:
+  ollama_data:
