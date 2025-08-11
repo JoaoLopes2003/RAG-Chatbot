@@ -27,7 +27,19 @@ block content
                 .arrow-left
         .chatbot
             .chat-container
-                span Hi, what can I help you with?
+                span#chatGreeting Hi, what can I help you with?
+                .messages-container
+                    each message in messages
+                        if message.user == "assistant"
+                            .message-container-assistant
+                                img(src='/images/icon-chatbot-2.svg', alt='Chatbot Icon')
+                                .message-wrapper-assistant
+                                    span= message.content
+                        else if message.user == "user"
+                            .message-container-user
+                                .message-wrapper-user
+                                    span= message.content
+                                img(src='/images/icon-user.svg', alt='User Icon')
                 form#chatForm(action="/").chatbox
                     textarea#message(placeholder="How can I help you today?" maxlength="1000")
                     .buttons-chat

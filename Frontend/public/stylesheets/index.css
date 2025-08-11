@@ -177,7 +177,7 @@ a.menu-option {
     display: flex;
     flex-direction: column;
     gap: 15px;
-    width: 50%;
+    width: 70%;
     min-height: fit-content;
     border-radius: 8px;
     padding: 20px;
@@ -246,11 +246,11 @@ a.menu-option {
   border-radius: 6px;
 }
 
-.chatbox textarea:hover::-webkit-scrollbar {
+.chatbox textarea::-webkit-scrollbar:hover {
     width: 4px;
 }
 
-.chatbox textarea:hover::-webkit-scrollbar-thumb {
+.chatbox textarea::-webkit-scrollbar-thumb:hover {
   background-color: rgba(255, 219, 117, 1.0);
 }
 
@@ -301,4 +301,83 @@ a.menu-option {
 
 .search-engine-container.active-2 {
     left: 60vw;
+}
+
+#chatGreeting {
+    display: none;
+}
+
+.messages-container {
+    display: flex;
+    flex-direction: column;
+    width: 99%;
+    padding-left: 15%;
+    padding-right: 15%;
+    height: 50vh;
+    align-items: flex-start;
+    gap: 30px;
+    overflow-y: scroll;
+    box-sizing: border-box;
+}
+
+.message-wrapper-assistant, .message-wrapper-user {
+    display: flex;
+    justify-self: center;
+    padding: 10px;
+    border-style: solid;
+    border-radius: 10px;
+    border-width: 1px;
+    border-color: rgba(0, 0, 0, 0.20);
+    justify-content: flex-start;
+    align-items: center;
+    white-space: pre-line;
+}
+
+.message-wrapper-assistant {
+    border-left-width: 12px;
+    border-left-color: #FFDB75;
+}
+
+.message-wrapper-user {
+    border-right-width: 12px;
+    border-right-color: #FFDB75;
+}
+
+.message-container-assistant, .message-container-user {
+    display: flex;
+    width: fit-content;
+    max-width: 75%;
+    align-items: center;
+    gap: 10px;
+}
+
+.message-container-assistant {
+    align-self: flex-start;
+}
+
+.message-container-user {
+    align-self: flex-end;
+}
+
+.messages-container img {
+    width: 4vh;
+    height: 4vh;
+    align-self: flex-end;
+}
+
+.messages-container::-webkit-scrollbar {
+    width: 5px;
+}
+
+.messages-container::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 219, 117, 0.65);
+  border-radius: 6px;
+}
+
+.messages-container::-webkit-scrollbar:hover {
+    width: 6px;
+}
+
+.messages-container::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 219, 117, 1.0);
 }
