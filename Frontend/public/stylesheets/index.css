@@ -303,10 +303,6 @@ a.menu-option {
     left: 60vw;
 }
 
-#chatGreeting {
-    display: none;
-}
-
 .messages-container {
     display: flex;
     flex-direction: column;
@@ -380,4 +376,21 @@ a.menu-option {
 
 .messages-container::-webkit-scrollbar-thumb:hover {
   background-color: rgba(255, 219, 117, 1.0);
+}
+
+/* HTML: <div class="loader"></div> */
+.loader {
+  width: 7px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  animation: l5 1s infinite linear alternate;
+  align-self: self-end;
+  margin-left: 10px;
+}
+
+@keyframes l5 {
+    0%  {box-shadow: 10px 0 #000, -10px 0 #0002;background: #000 }
+    33% {box-shadow: 10px 0 #000, -10px 0 #0002;background: #0002}
+    66% {box-shadow: 10px 0 #0002,-10px 0 #000; background: #0002}
+    100%{box-shadow: 10px 0 #0002,-10px 0 #000; background: #000 }
 }
