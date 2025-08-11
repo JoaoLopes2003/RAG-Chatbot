@@ -7,6 +7,18 @@ class ChatBot {
         this.history = [];
         
         this.initializeEventListeners();
+
+        this.converter = new showdown.Converter({
+            tables: true,
+            emoji: true,
+            disableForced4SpacesIndentedSublists: true,
+            tasklists: true,
+            ghCodeBlocks: true,
+            simplifiedAutoLink: true,
+            openLinksInNewWindow: true,
+            strikethrough: true,
+            moreStyling: true
+        })
     }
     
     initializeEventListeners() {
@@ -137,13 +149,14 @@ class ChatBot {
 
         const chatbotMessage = messagesContainer.lastElementChild
         chatbotMessage.querySelector(".loader").remove()
+        console.log(content)
 
         // Parse markdown to HTML
-    const htmlContent = marked.parse(content);
+        const htmlContent = this.converter.makeHtml(content);
 
         chatbotMessage.innerHTML += `
             <div class="message-wrapper-assistant">
-                <div class="markdown-content">${htmlContent}</div>
+                ${htmlContent}
             </div>
         `;
     }
