@@ -4,6 +4,11 @@ class ChatBot {
         this.textarea = document.getElementById('message');
         this.sendButton = document.getElementById('sendButton');
         this.chatContainer = document.querySelector('.chat-container');
+        this.messagesContainer = null;
+        this.regenerateMessageContainer = null
+        this.firstMessage = true
+        this.resendMessage = false
+        this.lastMessage = ''
         this.history = [];
         
         this.initializeEventListeners();
@@ -48,8 +53,18 @@ class ChatBot {
     
     async sendMessage() {
 
-        const message = this.textarea.value.trim();
-        if (!message) return;
+        let message = this.textarea.value.trim();
+        if (this.resendMessage && this.lastMessage) {
+            this.resendMessage = false
+            message = this.lastMessage
+        } else if (!this.textarea.value.trim()) {
+            return;
+        } else {
+            this.lastMessage = message
+        }
+
+        // Remove the regenerateMessageContainer in case there was an error before
+        this.checkErrorMessage()
         
         // Disable input while sending
         this.setInputState(false);
@@ -58,13 +73,12 @@ class ChatBot {
         this.textarea.value = '';
         this.sendButton.classList.remove('button-valid')
 
-        if (this.history.length < 2) {
+        if (this.history.length < 2 && this.firstMessage) {
+            this.firstMessage = false
             this.removeGreetingText()
             this.initiateMessagesContainer()
             this.setupHeightListener();
         }
-
-        this.removeChatbotFilter()
 
         const messagesContainer = document.querySelector('.messages-container')
 
@@ -80,6 +94,9 @@ class ChatBot {
             </div>
         `;
         messagesContainer.appendChild(loader);
+
+        this.onChatboxResize(this.form.getBoundingClientRect().height)
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
         
         try {
             // Send request to server
@@ -109,10 +126,16 @@ class ChatBot {
             this.addChatbotMessage(data.response)
             
         } catch (error) {
+            this.addChatbotErrorMessage()
             console.error('Error sending message:', error);
         } finally {
+
             // Add again the chatbot filter and update the scroll bar position
-            this.onChatboxResize(this.form.getBoundingClientRect().height)
+            if (!this.regenerateMessageContainer) {
+                this.onChatboxResize(this.form.getBoundingClientRect().height)
+            } else {
+                this.onChatboxResize(this.form.getBoundingClientRect().height + this.regenerateMessageContainer.getBoundingClientRect().height + 20)
+            }
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
             // Update the fade effect
@@ -191,6 +214,68 @@ class ChatBot {
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
+    addChatbotErrorMessage() {
+        const messagesContainer = document.querySelector('.messages-container')
+        const loaderEl = messagesContainer.querySelector(".loader")
+        const chatbotMessage = loaderEl.parentElement
+        loaderEl.remove()
+        
+        // Parse markdown to HTML
+        const error = "Something went wrong. If this issue persists please contact us."
+        console.log(error)
+
+        chatbotMessage.innerHTML += `
+            <div class="message-wrapper-assistant-error">
+                <span>${error}</span>
+            </div>
+        `;
+
+        this.addRegenerateResponseButton()
+
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    addRegenerateResponseButton() {
+        const regenerateResponseEL = document.createElement("div");
+        regenerateResponseEL.classList.add("regenerate-response-container");
+        this.regenerateMessageContainer = regenerateResponseEL
+
+        // Determine the correct position for the element
+        const chatHeight = this.form.getBoundingClientRect().height;
+        regenerateResponseEL.style.bottom = `${chatHeight}px`;
+
+        regenerateResponseEL.innerHTML = `
+            <span>There was an error generating a response</span>
+            <div class="regenerate-response-button">
+                <span>&#10226;</span><span>Regenerate Response</span>
+            </div>
+        `;
+
+        // Add event listener for the regenerate button
+        const regenerateButton = regenerateResponseEL.querySelector('.regenerate-response-button');
+        regenerateButton.addEventListener('click', () => {
+            this.regenerateMessage();
+        });
+
+        this.chatContainer.appendChild(regenerateResponseEL)
+    }
+
+    regenerateMessage() {
+        this.resendMessage = true
+        this.sendMessage()
+    }
+
+    checkErrorMessage() {
+        if (this.regenerateMessageContainer) {
+            this.regenerateMessageContainer.remove()
+            this.regenerateMessageContainer = null
+
+            // Remove the last two messages in the DOM
+            this.history = this.history.slice(0, -2)
+            this.reloadLastRequest()
+        }
+    }
+
     // Handling height changes in the form div
     setupHeightListener() {
         const resizeObserver = new ResizeObserver(entries => {
@@ -244,6 +329,12 @@ class ChatBot {
         } else {
             this.fadeTop.style.display = "block"
         }
+    }
+
+    reloadLastRequest() {
+        this.removeChatbotFilter()
+        this.messagesContainer.lastElementChild.remove()
+        this.messagesContainer.lastElementChild.remove()
     }
 }
 
