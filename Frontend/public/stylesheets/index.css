@@ -326,12 +326,13 @@ a.menu-option {
 }
 
 .fade-top {
-  position: absolute;
-  height: 40px;
-  pointer-events: none;
-  z-index: 10;
-  background: linear-gradient(to bottom, rgba(255,255,255,1), rgba(255,255,255,0));
-  will-change: top, left, width;
+    display: none;
+    position: absolute;
+    height: 40px;
+    pointer-events: none;
+    z-index: 10;
+    background: linear-gradient(to bottom, rgba(255,255,255,1), rgba(255,255,255,0));
+    will-change: top, left, width;
 }
 
 .message-wrapper-assistant, .message-wrapper-user {
@@ -363,20 +364,28 @@ a.menu-option {
     border-right-color: #FFDB75;
 }
 
-.message-container-assistant, .message-container-user {
+.message-container-assistant-2, .message-container-user {
     display: flex;
     width: fit-content;
-    max-width: 75%;
     align-items: center;
     gap: 10px;
 }
 
-.message-container-assistant {
+.message-container-assistant-2 {
     align-self: flex-start;
+    max-width: 100%;
+}
+
+.message-container-assistant-1 {
+    display: flex;
+    flex-direction: column;
+    width: 75%;
+    gap: 10px;
 }
 
 .message-container-user {
     align-self: flex-end;
+    max-width: 75%;
 }
 
 .messages-container img {

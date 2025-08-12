@@ -64,20 +64,22 @@ class ChatBot {
             this.setupHeightListener();
         }
 
+        this.removeChatbotFilter()
+
         const messagesContainer = document.querySelector('.messages-container')
 
         this.addUserMessage(message)
 
         // Add a loading animation
         const loader = document.createElement("div");
-        loader.classList.add("message-container-assistant");
+        loader.classList.add("message-container-assistant-1");
         loader.innerHTML = `
-            <img src="/images/icon-chatbot-2.svg" alt="Chatbot Icon">
-            <div class="loader"></div>
+            <div class="message-container-assistant-2">
+                <img src="/images/icon-chatbot-2.svg" alt="Chatbot Icon">
+                <div class="loader"></div>
+            </div>
         `;
         messagesContainer.appendChild(loader);
-
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
         
         try {
             // Send request to server
@@ -109,6 +111,13 @@ class ChatBot {
         } catch (error) {
             console.error('Error sending message:', error);
         } finally {
+            // Add again the chatbot filter and update the scroll bar position
+            this.onChatboxResize(this.form.getBoundingClientRect().height)
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            // Update the fade effect
+            this.hideFade()
+
             // Hide loading and re-enable input
             this.setInputState(true);
             this.textarea.focus();
@@ -186,29 +195,37 @@ class ChatBot {
     setupHeightListener() {
         const resizeObserver = new ResizeObserver(entries => {
             for (let entry of entries) {
-                const { height } = entry.contentRect;
+                const height = this.form.getBoundingClientRect().height;
                 this.onChatboxResize(height);
             }
         });
         
         resizeObserver.observe(this.form);
+        resizeObserver.observe(this.messagesContainer);
     }
 
-    onChatboxResize(newHeight) {
+    removeChatbotFilter() {
         const OldChatboxFiller = this.chatContainer.querySelector('.chatbox-filler');
 
         if (OldChatboxFiller) {
             // Remove the old filler
             OldChatboxFiller.remove();
-
-            // Create the new filler
-            const newChatboxFiller = document.createElement("div");
-            newChatboxFiller.classList.add("chatbox-filler");
-            newChatboxFiller.style.minHeight = `${newHeight + 40}px`;
-
-            // Add the new filler to the DOM
-            this.messagesContainer.appendChild(newChatboxFiller);
         }
+    }
+
+    addChatbotFilter (newHeight) {
+        // Create the new filler
+        const newChatboxFiller = document.createElement("div");
+        newChatboxFiller.classList.add("chatbox-filler");
+        newChatboxFiller.style.minHeight = `${newHeight}px`;
+
+        // Add the new filler to the DOM
+        this.messagesContainer.appendChild(newChatboxFiller);
+    }
+
+    onChatboxResize(newHeight) {
+        this.removeChatbotFilter()
+        this.addChatbotFilter(newHeight)
     }
 
     positionFade() {
