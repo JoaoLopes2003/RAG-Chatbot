@@ -140,29 +140,10 @@ class ChatBot {
         this.chatContainer.appendChild(fade);
         this.fadeTop = fade;
 
-        // position function
-        const positionFade = () => {
-            const chatRect = this.chatContainer.getBoundingClientRect();
-            const msgRect  = messagesContainer.getBoundingClientRect();
-
-            // compute coordinates relative to chatContainer
-            fade.style.top  = `${msgRect.top - chatRect.top}px`;
-            fade.style.left = `${msgRect.left - chatRect.left}px`;
-            fade.style.width = `${msgRect.width}px`;
-        };
-
-        const hideFade = () => {
-            if (this.messagesContainer.scrollTop < 40) {
-                this.fadeTop.style.display = "none"
-            } else {
-                this.fadeTop.style.display = "block"
-            }
-        }
-
         // initial place and keep updated on resize
-        positionFade();
-        window.addEventListener('resize', positionFade);
-        this.messagesContainer.addEventListener('scroll', hideFade);
+        this.positionFade();
+        window.addEventListener('resize', () => this.positionFade());
+        this.messagesContainer.addEventListener('scroll', () => this.hideFade());
     }
 
     // Adding the user message to the DOM
@@ -227,6 +208,24 @@ class ChatBot {
 
             // Add the new filler to the DOM
             this.messagesContainer.appendChild(newChatboxFiller);
+        }
+    }
+
+    positionFade() {
+        const chatRect = this.chatContainer.getBoundingClientRect();
+        const msgRect  = this.messagesContainer.getBoundingClientRect();
+
+        // compute coordinates relative to chatContainer
+        this.fadeTop.style.top  = `${msgRect.top - chatRect.top}px`;
+        this.fadeTop.style.left = `${msgRect.left - chatRect.left}px`;
+        this.fadeTop.style.width = `${msgRect.width}px`;
+    }
+
+    hideFade() {
+        if (this.messagesContainer.scrollTop < 40) {
+            this.fadeTop.style.display = "none"
+        } else {
+            this.fadeTop.style.display = "block"
         }
     }
 }
