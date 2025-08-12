@@ -59,8 +59,9 @@ class ChatBot {
         this.sendButton.classList.remove('button-valid')
 
         if (this.history.length < 2) {
-            this.hideGreetingText()
+            this.removeGreetingText()
             this.initiateMessagesContainer()
+            this.setupHeightListener();
         }
 
         const messagesContainer = document.querySelector('.messages-container')
@@ -75,6 +76,8 @@ class ChatBot {
             <div class="loader"></div>
         `;
         messagesContainer.appendChild(loader);
+
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
         
         try {
             // Send request to server
@@ -116,15 +119,50 @@ class ChatBot {
         this.textarea.disabled = !enabled;
     }
 
-    hideGreetingText() {
-        const chatGreeting = document.getElementById('chatGreeting');
-        chatGreeting.style.display = "none"
+    removeGreetingText() {
+        const chatGreeting = document.getElementById('chatGreeting').remove()
     }
 
     initiateMessagesContainer() {
+        // create messages container
         const messagesContainer = document.createElement("div");
         messagesContainer.classList.add("messages-container");
-        this.chatContainer.prepend(messagesContainer)
+
+        // Calculate the height of the chatbox
+        const chatboxHeight = this.form.offsetHeight;
+        messagesContainer.innerHTML = `<div class="chatbox-filler" style="min-height: ${chatboxHeight}px"></div>`;
+        this.chatContainer.prepend(messagesContainer);
+        this.messagesContainer = messagesContainer;
+
+        // Add the fade effect at the top of the chat container
+        const fade = document.createElement("div");
+        fade.className = "fade-top";
+        this.chatContainer.appendChild(fade);
+        this.fadeTop = fade;
+
+        // position function
+        const positionFade = () => {
+            const chatRect = this.chatContainer.getBoundingClientRect();
+            const msgRect  = messagesContainer.getBoundingClientRect();
+
+            // compute coordinates relative to chatContainer
+            fade.style.top  = `${msgRect.top - chatRect.top}px`;
+            fade.style.left = `${msgRect.left - chatRect.left}px`;
+            fade.style.width = `${msgRect.width}px`;
+        };
+
+        const hideFade = () => {
+            if (this.messagesContainer.scrollTop < 40) {
+                this.fadeTop.style.display = "none"
+            } else {
+                this.fadeTop.style.display = "block"
+            }
+        }
+
+        // initial place and keep updated on resize
+        positionFade();
+        window.addEventListener('resize', positionFade);
+        this.messagesContainer.addEventListener('scroll', hideFade);
     }
 
     // Adding the user message to the DOM
@@ -146,9 +184,9 @@ class ChatBot {
     // Adding the chatbot message to the DOM
     addChatbotMessage(content) {
         const messagesContainer = document.querySelector('.messages-container')
-
-        const chatbotMessage = messagesContainer.lastElementChild
-        chatbotMessage.querySelector(".loader").remove()
+        const loaderEl = messagesContainer.querySelector(".loader")
+        const chatbotMessage = loaderEl.parentElement
+        loaderEl.remove()
         console.log(content)
 
         // Parse markdown to HTML
@@ -159,6 +197,37 @@ class ChatBot {
                 ${htmlContent}
             </div>
         `;
+
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    // Handling height changes in the form div
+    setupHeightListener() {
+        const resizeObserver = new ResizeObserver(entries => {
+            for (let entry of entries) {
+                const { height } = entry.contentRect;
+                this.onChatboxResize(height);
+            }
+        });
+        
+        resizeObserver.observe(this.form);
+    }
+
+    onChatboxResize(newHeight) {
+        const OldChatboxFiller = this.chatContainer.querySelector('.chatbox-filler');
+
+        if (OldChatboxFiller) {
+            // Remove the old filler
+            OldChatboxFiller.remove();
+
+            // Create the new filler
+            const newChatboxFiller = document.createElement("div");
+            newChatboxFiller.classList.add("chatbox-filler");
+            newChatboxFiller.style.minHeight = `${newHeight + 40}px`;
+
+            // Add the new filler to the DOM
+            this.messagesContainer.appendChild(newChatboxFiller);
+        }
     }
 }
 
