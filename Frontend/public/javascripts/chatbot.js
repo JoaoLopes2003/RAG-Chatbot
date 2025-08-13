@@ -211,6 +211,46 @@ class ChatBot {
             </div>
         `;
 
+        // Add the option icons refering to this message
+        const messageContainer =  chatbotMessage.parentElement
+        messageContainer.innerHTML += `
+            <div class="message-container-assistant-3">
+                <img src="/images/icon-copy-text.svg" alt="Copy Icon" class="copy-option">
+                <div class="copy-option-activated">
+                    <span>&#x2714;</span>
+                </div>
+            </div>
+        `
+
+        // Add an event listener that links this button to the respective message
+        const copyOption = messageContainer.querySelector('.copy-option')
+        copyOption.addEventListener('click', (event) => { 
+            // Convert the html text to plain text 
+            console.log(messageContainer.querySelector('.message-wrapper-assistant').innerHTML) 
+            const text = this.copyMessageChatbot(messageContainer.querySelector('.message-wrapper-assistant').innerHTML); 
+            
+            navigator.clipboard.writeText(text).then(() => { 
+                // Update the icon to show the user the content has been copied successfully 
+                const checkIconEL = messageContainer.querySelector('.message-container-assistant-3 .copy-option-activated');
+                const copyIcon = event.target;
+                
+                if (checkIconEL) { 
+                    checkIconEL.style.display = 'flex';
+                } 
+                copyIcon.style.display = 'none'; 
+
+                // Sleep for 3 seconds and hide check icon and show copy icon again 
+                setTimeout(() => { 
+                    if (checkIconEL) { 
+                        checkIconEL.style.display = 'none'; 
+                    } 
+                    copyIcon.style.display = 'block'; 
+                }, 3000); 
+            }).catch(err => { 
+                console.error('Failed to copy text: ', err); 
+            }); 
+        }); 
+
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
@@ -335,6 +375,26 @@ class ChatBot {
         this.removeChatbotFilter()
         this.messagesContainer.lastElementChild.remove()
         this.messagesContainer.lastElementChild.remove()
+    }
+
+    copyMessageChatbot(html) {
+        let text = html;
+        text = text.replace(/\n/gi, "");
+        text = text.replace(/<style([\s\S]*?)<\/style>/gi, "");
+        text = text.replace(/<script([\s\S]*?)<\/script>/gi, "");
+        text = text.replace(/<a.*?href="(.*?)[\?\"].*?>(.*?)<\/a.*?>/gi, " $2 $1 ");
+        text = text.replace(/<\/div>/gi, "\n\n");
+        text = text.replace(/<\/li>/gi, "\n");
+        text = text.replace(/<li.*?>/gi, "  *  ");
+        text = text.replace(/<\/ul>/gi, "\n\n");
+        text = text.replace(/<\/p>/gi, "\n\n");
+        text = text.replace(/<br\s*[\/]?>/gi, "\n");
+        text = text.replace(/<[^>]+>/gi, "");
+        text = text.replace(/^\s*/gim, "");
+        text = text.replace(/ ,/gi, ",");
+        text = text.replace(/ +/gi, " ");
+        text = text.replace(/\n+/gi, "\n\n");
+        return text;
     }
 }
 
