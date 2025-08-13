@@ -100,7 +100,7 @@ class ChatBot {
         
         try {
             // Send request to server
-            const response = await fetch('http://localhost:3002/llm', {
+            const response = await fetch('http://localhost:3000/llm', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -110,8 +110,6 @@ class ChatBot {
                     history: this.history
                 })
             });
-
-            console.log(this.history)
             
             if (!response.ok) {
                 throw new Error(`Server error: ${response.status} ${response.statusText}`);
