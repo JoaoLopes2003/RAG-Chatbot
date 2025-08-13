@@ -110,6 +110,8 @@ class ChatBot {
                     history: this.history
                 })
             });
+
+            console.log(this.history)
             
             if (!response.ok) {
                 throw new Error(`Server error: ${response.status} ${response.statusText}`);
@@ -200,7 +202,6 @@ class ChatBot {
         const loaderEl = messagesContainer.querySelector(".loader")
         const chatbotMessage = loaderEl.parentElement
         loaderEl.remove()
-        console.log(content)
 
         // Parse markdown to HTML
         const htmlContent = this.converter.makeHtml(content);
@@ -226,7 +227,6 @@ class ChatBot {
         const copyOption = messageContainer.querySelector('.copy-option')
         copyOption.addEventListener('click', (event) => { 
             // Convert the html text to plain text 
-            console.log(messageContainer.querySelector('.message-wrapper-assistant').innerHTML) 
             const text = this.copyMessageChatbot(messageContainer.querySelector('.message-wrapper-assistant').innerHTML); 
             
             navigator.clipboard.writeText(text).then(() => { 
@@ -237,7 +237,7 @@ class ChatBot {
                 if (checkIconEL) { 
                     checkIconEL.style.display = 'flex';
                 } 
-                copyIcon.style.display = 'none'; 
+                copyIcon.style.display = 'none';
 
                 // Sleep for 3 seconds and hide check icon and show copy icon again 
                 setTimeout(() => { 
@@ -249,7 +249,15 @@ class ChatBot {
             }).catch(err => { 
                 console.error('Failed to copy text: ', err); 
             }); 
-        }); 
+        });
+
+        // Add an event listener also to the success copy button, so that the user can also copy when the copy button is hidden
+        const checkIconEL = messageContainer.querySelector('.message-container-assistant-3 .copy-option-activated')
+        checkIconEL.addEventListener('click', () => {
+            // Convert the html text to plain text 
+            const text = this.copyMessageChatbot(messageContainer.querySelector('.message-wrapper-assistant').innerHTML); 
+            navigator.clipboard.writeText(text)
+        });
 
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }

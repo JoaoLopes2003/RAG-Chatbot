@@ -93,7 +93,9 @@ def generate_response(
     Returns:
         Generated response string
     """
+    print(history)
     if history is None:
+        print("------------No History----------")
         history = []
 
     current_message = prompt
@@ -107,13 +109,14 @@ def generate_response(
     # Build message list
     messages = []
 
-    # Inject prompt engineering only on the very first interaction
-    if not history:
-        messages.append({"role": "system", "content": SYSTEM_INSTRUCTIONS})
+    # Inject prompt engineering
+    messages.append({"role": "system", "content": SYSTEM_INSTRUCTIONS})
 
     # Add conversation history + current message
     messages.extend(history)
     messages.append({"role": "user", "content": current_message})
+
+    print(messages)
 
     response = ollama.chat(
         model=model, 
