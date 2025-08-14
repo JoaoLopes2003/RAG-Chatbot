@@ -1,0 +1,446 @@
+{
+    "metadata": {
+        "file_name": "1. Franzela albă, feliată – 500gr, 400g, 300g",
+        "file_extension": ".doc",
+        "folder_path": "./documents"
+    },
+    "content": {
+        "type": "text",
+        "value": "Franzela albă, feliată – 500gr, 400g, 300g",
+        "children": [
+            {
+                "type": "text",
+                "value": "Denumire produs:",
+                "children": [
+                    {
+                        "type": "text",
+                        "value": "Franzelă albă, feliată – 500gr, 400g, 300g"
+                    }
+                ]
+            },
+            {
+                "type": "text",
+                "value": "Gramaj:",
+                "children": [
+                    {
+                        "type": "text",
+                        "value": "produs feliat, ambalat - 500gr, 400g, 300g"
+                    }
+                ]
+            },
+            {
+                "type": "text",
+                "value": "Categorie:",
+                "children": [
+                    {
+                        "type": "text",
+                        "value": "PANIFICAȚIE/Pâine ambalată"
+                    }
+                ]
+            },
+            {
+                "type": "text",
+                "value": "Foto produs:",
+                "children": [
+                    {
+                        "type": "table",
+                        "n_rows": 2,
+                        "n_columns": 3,
+                        "header": [
+                            {
+                                "column": 1,
+                                "el": {
+                                    "type": "text",
+                                    "value": "Simplă"
+                                }
+                            },
+                            {
+                                "column": 2,
+                                "el": {
+                                    "type": "text",
+                                    "value": "Feliată"
+                                }
+                            },
+                            {
+                                "column": 3,
+                                "el": {
+                                    "type": "text",
+                                    "value": "Ambalată"
+                                }
+                            }
+                        ],
+                        "body": [
+                            [
+                                {
+                                    "row": 2,
+                                    "column": 1,
+                                    "el": {
+                                        "type": "image",
+                                        "metadata": {
+                                            "file_name": "",
+                                            "file_extension": "",
+                                            "folder_path": "",
+                                            "alt_text": ""
+                                        }
+                                    }
+                                },
+                                {
+                                    "row": 2,
+                                    "column": 2,
+                                    "el": {
+                                        "type": "image",
+                                        "metadata": {
+                                            "file_name": "",
+                                            "file_extension": "",
+                                            "folder_path": "",
+                                            "alt_text": ""
+                                        }
+                                    }
+                                },
+                                {
+                                    "row": 2,
+                                    "column": 3,
+                                    "el": {
+                                        "type": "image",
+                                        "metadata": {
+                                            "file_name": "",
+                                            "file_extension": "",
+                                            "folder_path": "",
+                                            "alt_text": ""
+                                        }
+                                    }
+                                }
+                            ]
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "text",
+                "value": "Descriere produs:",
+                "children": [
+                    {
+                        "type": "text",
+                        "value": "Categorie produs:",
+                        "children": [
+                            {
+                                "type": "text",
+                                "value": "Pâine ambalată"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "text",
+                        "value": "Descriere produs:",
+                        "children": [
+                            {
+                                "type": "text",
+                                "value": "Plămădim cu migală pâinea alba a ieșenilor, o pâine  cu maia, exact pe gustul acestora. Oferim zi de zi ieșenilor o pâine vie, proaspătă, aleasă, care este la loc de cinste pe fiecare masă."
+                            }
+                        ]
+                    },
+                    {
+                        "type": "text",
+                        "value": "Beneficii produs:",
+                        "children": [
+                            {
+                                "type": "text",
+                                "value": "Beneficiile consumului pâinii cu secară:",
+                                "children": [
+                                    {
+                                        "type": "text",
+                                        "value": "Miez moale, pufos, aromat și numai bun de savurat"
+                                    },
+                                    {
+                                        "type": "text",
+                                        "value": "Preferata copiilor pentru tartine, bună cu unt și miere, perfectă pentru sandvișuri"
+                                    },
+                                    {
+                                        "type": "text",
+                                        "value": "Coaja crocantă, de culoare arămie, cu care poți gusta din felurite sosuri savuroase."
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "text",
+                        "value": "Ingrediente:",
+                        "children": [
+                            {
+                                "type": "text",
+                                "value": "faină albă de grâu tip 650 (75,7%), apă, drojdie, sare iodată, emulsifiant (mono  și digliceride ale acizilor grași), conservant( propionat de calciu),antioxidant (acid ascorbic), agent de tratare a făinii (L-cisteina), enzime",
+                                "children": [
+                                    {
+                                        "type": "text",
+                                        "value": "Alergeni:",
+                                        "children": [
+                                            {
+                                                "type": "text",
+                                                "value": "Gluten. Produsul poate conține urme de susan, soia, nuci"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "text",
+                        "value": "Valori nutriționale:",
+                        "children": [
+                            {
+                                "type": "table",
+                                "n_rows": 9,
+                                "n_columns": 3,
+                                "header": [
+                                    {
+                                        "column": 1,
+                                        "el": {
+                                            "type": "text",
+                                            "value": "Valori energetice și nutriționale medii"
+                                        }
+                                    },
+                                    {
+                                        "column": 2,
+                                        "el": {
+                                            "type": "text",
+                                            "value": "Valori energetice și nutriționale medii"
+                                        }
+                                    },
+                                    {
+                                        "column": 3,
+                                        "el": {
+                                            "type": "text",
+                                            "value": "%CR* pentru 100g"
+                                        }
+                                    }
+                                ],
+                                "body": [
+                                    [
+                                        {
+                                            "row": 2,
+                                            "column": 1,
+                                            "el": {
+                                                "type": "text",
+                                                "value": "Valoare energetică"
+                                            }
+                                        },
+                                        {
+                                            "row": 2,
+                                            "column": 2,
+                                            "el": {
+                                                "type": "text",
+                                                "value": "237 kcal/1009 kj"
+                                            }
+                                        },
+                                        {
+                                            "row": 2,
+                                            "column": 3,
+                                            "el": {
+                                                "type": "text",
+                                                "value": "11,9"
+                                            }
+                                        }
+                                    ],
+                                    [
+                                        {
+                                            "row": 3,
+                                            "column": 1,
+                                            "el": {
+                                                "type": "text",
+                                                "value": "Grăsimi"
+                                            }
+                                        },
+                                        {
+                                            "row": 3,
+                                            "column": 2,
+                                            "el": {
+                                                "type": "text",
+                                                "value": "0,64 g"
+                                            }
+                                        },
+                                        {
+                                            "row": 3,
+                                            "column": 3,
+                                            "el": {
+                                                "type": "text",
+                                                "value": "0,9"
+                                            }
+                                        }
+                                    ],
+                                    [
+                                        {
+                                            "row": 4,
+                                            "column": 1,
+                                            "el": {
+                                                "type": "text",
+                                                "value": "din care acizi grași saturați"
+                                            }
+                                        },
+                                        {
+                                            "row": 4,
+                                            "column": 2,
+                                            "el": {
+                                                "type": "text",
+                                                "value": "0.13 g"
+                                            }
+                                        },
+                                        {
+                                            "row": 4,
+                                            "column": 3,
+                                            "el": {
+                                                "type": "text",
+                                                "value": "0,7"
+                                            }
+                                        }
+                                    ],
+                                    [
+                                        {
+                                            "row": 5,
+                                            "column": 1,
+                                            "el": {
+                                                "type": "text",
+                                                "value": "Glucide"
+                                            }
+                                        },
+                                        {
+                                            "row": 5,
+                                            "column": 2,
+                                            "el": {
+                                                "type": "text",
+                                                "value": "45,7 g"
+                                            }
+                                        },
+                                        {
+                                            "row": 5,
+                                            "column": 3,
+                                            "el": {
+                                                "type": "text",
+                                                "value": "17,6"
+                                            }
+                                        }
+                                    ],
+                                    [
+                                        {
+                                            "row": 6,
+                                            "column": 1,
+                                            "el": {
+                                                "type": "text",
+                                                "value": "din care zaharuri"
+                                            }
+                                        },
+                                        {
+                                            "row": 6,
+                                            "column": 2,
+                                            "el": {
+                                                "type": "text",
+                                                "value": "4.9 g"
+                                            }
+                                        },
+                                        {
+                                            "row": 6,
+                                            "column": 3,
+                                            "el": {
+                                                "type": "text",
+                                                "value": "5,4"
+                                            }
+                                        }
+                                    ],
+                                    [
+                                        {
+                                            "row": 7,
+                                            "column": 1,
+                                            "el": {
+                                                "type": "text",
+                                                "value": "Proteine"
+                                            }
+                                        },
+                                        {
+                                            "row": 7,
+                                            "column": 2,
+                                            "el": {
+                                                "type": "text",
+                                                "value": "12,2g"
+                                            }
+                                        },
+                                        {
+                                            "row": 7,
+                                            "column": 3,
+                                            "el": {
+                                                "type": "text",
+                                                "value": "24,4"
+                                            }
+                                        }
+                                    ],
+                                    [
+                                        {
+                                            "row": 8,
+                                            "column": 1,
+                                            "el": {
+                                                "type": "text",
+                                                "value": "Fibre"
+                                            }
+                                        },
+                                        {
+                                            "row": 8,
+                                            "column": 2,
+                                            "el": {
+                                                "type": "text",
+                                                "value": "4.9 g"
+                                            }
+                                        },
+                                        {
+                                            "row": 8,
+                                            "column": 3,
+                                            "el": {
+                                                "type": "text",
+                                                "value": "_"
+                                            }
+                                        }
+                                    ],
+                                    [
+                                        {
+                                            "row": 9,
+                                            "column": 1,
+                                            "el": {
+                                                "type": "text",
+                                                "value": "Sare"
+                                            }
+                                        },
+                                        {
+                                            "row": 9,
+                                            "column": 2,
+                                            "el": {
+                                                "type": "text",
+                                                "value": "1.4 g"
+                                            }
+                                        },
+                                        {
+                                            "row": 9,
+                                            "column": 3,
+                                            "el": {
+                                                "type": "text",
+                                                "value": "23,3"
+                                            }
+                                        }
+                                    ]
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "text",
+                        "value": "Termen de valabilitate:",
+                        "children": [
+                            {
+                                "type": "text",
+                                "value": "5 zile"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
