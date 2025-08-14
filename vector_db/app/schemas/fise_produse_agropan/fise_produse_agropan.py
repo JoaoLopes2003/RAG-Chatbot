@@ -8,6 +8,7 @@ if TYPE_CHECKING:
     from table import Table
 
 class Metadata(BaseModel):
+    schema: str
     file_name: str
     file_extension: str
     folder_path: str

@@ -1,5 +1,42 @@
 import json
 from pathlib import Path
+from pydantic import ValidationError
+
+def validate_json_data(schema_map: dict, data: dict) -> tuple[bool, str, dict]:
+    """
+    Validate JSON data against the appropriate schema.
+    
+    Args:
+
+        data: The JSON data to validate
+        
+    Returns:
+        tuple: (is_valid, schema_name, validation_errors)
+            - is_valid: Whether the data matched any schema
+            - schema_name: The name of the schema that matched (or attempted schema)
+            - validation_errors: Dict of validation errors by schema name
+    """
+    validation_errors = {}
+    
+    # Check if schema is specified in metadata
+    try:
+        specified_schema = data["metadata"]["schema"]
+    except KeyError:
+        # If no schema specified, return error
+        return False, "Unknown", {"Error": "No schema specified in metadata"}
+    
+    # Try to validate against the specified schema
+    if specified_schema in schema_map:
+        schema_class = schema_map[specified_schema]
+        try:
+            schema_class(**data)  # validate JSON
+            return True, specified_schema, {}
+        except ValidationError as e:
+            validation_errors[specified_schema] = e
+            return False, specified_schema, validation_errors
+    else:
+        # Schema not found in our mapping
+        return False, specified_schema, {"Error": f"Schema '{specified_schema}' not found in schema_map"}
 
 def write_validation_errors_to_file(errors_path: str, file_path: Path, validation_errors: dict):
     """Write detailed validation errors to a file"""

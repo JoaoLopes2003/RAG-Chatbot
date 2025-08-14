@@ -5,7 +5,7 @@ import json
 # from dotenv import load_dotenv
 from pydantic import ValidationError
 # import google.generativeai as genai
-from print_schema_errors import write_validation_errors_to_file
+from schemas.validation import write_validation_errors_to_file, validate_json_data
 
 # Import all the schema modules
 from schemas.fise_produse_agropan.text import Text
@@ -21,7 +21,9 @@ Fpa_schema.model_rebuild()
 DOCUMENTS_PATH = '../documents_json/'
 ERRORS_PATH = '../tmp/errors/'
 
-SCHEMAS = [Fpa_schema]
+SCHEMA_MAP = {
+    "Fpa": Fpa_schema,
+}
 
 def json2list(data: dict, list: list = []) -> list:
 
@@ -49,23 +51,14 @@ def main():
             print(f"❌ Failed to read file {path.name}: {e}")
             continue
 
-        matched_schema = None
-        validation_errors = {}
-
-        for schema in SCHEMAS:
-            try:
-                schema(**data)  # validate JSON
-                matched_schema = schema
-                break
-            except ValidationError as e:
-                validation_errors[schema.__name__] = e
-                continue  # Try the next schema
+        # Validate the JSON data
+        is_valid, schema_name, validation_errors = validate_json_data(SCHEMA_MAP, data)
         
-        if matched_schema:
-            print(f"✅ {path.name} matches schema: {matched_schema.__name__}")
+        if is_valid:
+            print(f"✅ {path.name} matches schema: {schema_name}")
             matched_files += 1
         else:
-            print(f"❌ No matching schema for file: {path.name}")
+            print(f"❌ {path.name} doesn't match schema: {schema_name}")
             print(f"   Writing errors to: errors/{path.stem}_errors.txt")
             
             # Write errors to file
