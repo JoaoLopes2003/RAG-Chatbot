@@ -13,11 +13,6 @@ class Metadata(BaseModel):
     file_extension: str
     folder_path: str
 
-class Content(BaseModel):
-    type: Literal["text"]
-    value: str
-    children: Optional[List[Union["Text", "Image", "Table"]]] = None
-
-class Fpa_schema(BaseModel):
+class File_schema(BaseModel):
     metadata: Metadata
-    content: Content
+    content: Optional[Union[List[Union["Text", "Image", "Table"]], Union["Text", "Image", "Table"]]] = None

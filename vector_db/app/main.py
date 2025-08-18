@@ -1,41 +1,43 @@
 import os
 from pathlib import Path
 import json
-# import faiss
-# from dotenv import load_dotenv
+
+from dotenv import load_dotenv
 from pydantic import ValidationError
-# import google.generativeai as genai
+
 from schemas.validation import write_validation_errors_to_file, validate_json_data
+from vector_db import Vector_db
 
 # Import all the schema modules
-from schemas.fise_produse_agropan.text import Text
-from schemas.fise_produse_agropan.table import Table
-from schemas.fise_produse_agropan.image import Image
-from schemas.fise_produse_agropan.fise_produse_agropan import Fpa_schema
+from schemas.building_blocks.text import Text
+from schemas.building_blocks.table import Table
+from schemas.building_blocks.image import Image
+from schemas.file_schemas.file import File_schema
 
 Text.model_rebuild()
 Table.model_rebuild()
-Fpa_schema.model_rebuild()
+File_schema.model_rebuild()
 
 
 DOCUMENTS_PATH = '../documents_json/'
 ERRORS_PATH = '../tmp/errors/'
+EMBEDDINGS_DIM = 768
 
 SCHEMA_MAP = {
-    "Fpa": Fpa_schema,
+    "General_file": File_schema,
 }
 
-def json2list(data: dict, list: list = []) -> list:
-
-    for el in data['content']:
-        continue
-
 def main():
+
+    load_dotenv()
+    API_KEY = os.getenv("API_KEY")
+
     # Load the documents into the vector db
     pathlist = Path(DOCUMENTS_PATH).glob('*.json')
     total_files = 0
     matched_files = 0
     error_files = 0
+    search_engine = Vector_db(API_KEY, EMBEDDINGS_DIM)
     
     for path in pathlist:
         total_files += 1
@@ -57,6 +59,9 @@ def main():
         if is_valid:
             print(f"✅ {path.name} matches schema: {schema_name}")
             matched_files += 1
+
+            # Add the dile to the search engine database
+            search_engine.add_file(data["content"])
         else:
             print(f"❌ {path.name} doesn't match schema: {schema_name}")
             print(f"   Writing errors to: errors/{path.stem}_errors.txt")
@@ -64,6 +69,15 @@ def main():
             # Write errors to file
             write_validation_errors_to_file(ERRORS_PATH, path, validation_errors)
             error_files += 1
+        
+        print(json.dumps(search_engine.db_to_string(), sort_keys=True, indent=4))
+
+        while True:
+            print("Enter your query:")
+            query = input()
+            docs = search_engine.query_db(query)
+            for doc in docs:
+                print(doc)
     
     # Summary
     print("\n" + "=" * 60)
@@ -78,31 +92,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
-
-
-
-
-
-
-
-
-# load_dotenv()
-
-# API_KEY = os.getenv("API_KEY")
-
-# # Configure the API key
-# genai.configure(api_key=API_KEY)
-
-# # Generate embeddings (not a model instance)
-# response = genai.embed_content(
-#     model="models/text-embedding-004",
-#     content="What is the meaning of life?"
-# )
-
-# # Print the embeddings
-# print(response['embedding'])

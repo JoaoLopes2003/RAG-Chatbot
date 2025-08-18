@@ -12,7 +12,7 @@ def validate_json_data(schema_map: dict, data: dict) -> tuple[bool, str, dict]:
         
     Returns:
         tuple: (is_valid, schema_name, validation_errors)
-            - is_valid: Whether the data matched any schema
+            - is_valid: Whether the data matched the specified schema
             - schema_name: The name of the schema that matched (or attempted schema)
             - validation_errors: Dict of validation errors by schema name
     """
