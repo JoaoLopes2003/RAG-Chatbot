@@ -72,10 +72,19 @@ def main():
             # Write errors to file
             write_validation_errors_to_file(ERRORS_PATH, path, validation_errors)
             error_files += 1
-        
-        print(json.dumps(search_engine.db_to_string(), sort_keys=True, indent=4))
-
-        while True:
+    
+    # Summary
+    print("\n" + "=" * 60)
+    print(f"📊 Processing Summary:")
+    print(f"   Total files processed: {total_files}")
+    print(f"   Files matching schemas: {matched_files}")
+    print(f"   Files with errors: {error_files}")
+    
+    if error_files > 0:
+        print(f"\n⚠️  Error details written to '{ERRORS_PATH}' folder")
+        print(f"   Each error file is named: [original_filename]_errors.txt")
+    
+    while True:
             print("Enter your query:")
             query = input()
 
@@ -93,17 +102,6 @@ def main():
                 xml_str = ET.tostring(doc, encoding='unicode')
                 pretty_xml = minidom.parseString(xml_str).toprettyxml(indent="  ")
                 print(pretty_xml)
-    
-    # Summary
-    print("\n" + "=" * 60)
-    print(f"📊 Processing Summary:")
-    print(f"   Total files processed: {total_files}")
-    print(f"   Files matching schemas: {matched_files}")
-    print(f"   Files with errors: {error_files}")
-    
-    if error_files > 0:
-        print(f"\n⚠️  Error details written to '{ERRORS_PATH}' folder")
-        print(f"   Each error file is named: [original_filename]_errors.txt")
 
 if __name__ == "__main__":
     main()

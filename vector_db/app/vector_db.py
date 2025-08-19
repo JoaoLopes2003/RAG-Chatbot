@@ -2,6 +2,7 @@ import google.generativeai as genai
 import faiss
 import numpy as np
 import xml.etree.ElementTree as ET
+import copy
 
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
@@ -204,7 +205,7 @@ class Vector_db:
 
         # Add the self node
         el = self.documents_bd[id]
-        tree = el
+        tree = copy.deepcopy(el)
 
         # Add self id
         tree["id"] = id
