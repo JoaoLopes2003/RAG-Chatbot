@@ -2,6 +2,9 @@ import os
 from pathlib import Path
 import json
 
+import xml.etree.ElementTree as ET
+from xml.dom import minidom
+
 from dotenv import load_dotenv
 from pydantic import ValidationError
 
@@ -75,9 +78,21 @@ def main():
         while True:
             print("Enter your query:")
             query = input()
+
+            # Get the relevant docs for this query
             docs = search_engine.query_db(query)
+
+            # Build the xml file for each doc
+            docs_xml = []
+            doc_counter = 0
             for doc in docs:
-                print(doc)
+                docs_xml.append(search_engine.doc_to_xml(doc, doc_counter))
+                doc_counter += 1
+            
+            for doc in docs_xml:
+                xml_str = ET.tostring(doc, encoding='unicode')
+                pretty_xml = minidom.parseString(xml_str).toprettyxml(indent="  ")
+                print(pretty_xml)
     
     # Summary
     print("\n" + "=" * 60)
