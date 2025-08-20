@@ -88,7 +88,7 @@ def generate_response(
         model: Ollama model to use
         temperature: Response creativity (0.0-2.0)
         history: Previous conversation messages [{"role": "user/assistant", "content": "..."}]
-        documents: List of relevant documents to include as context
+        documents: A string of relevant documents to include as context
     
     Returns:
         Generated response string
@@ -98,11 +98,8 @@ def generate_response(
 
     current_message = prompt
 
-    if documents and len(documents) > 0:
-        document_context = "\n\n".join(
-            [f"Document {i+1}:\n{doc}" for i, doc in enumerate(documents)]
-        )
-        current_message = f"Context documents:\n{document_context}\n\nUser question: {prompt}"
+    if documents:
+        current_message = f"Context documents:\n{documents}\n\nUser question: {prompt}"
 
     # Build message list
     messages = []
