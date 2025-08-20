@@ -125,6 +125,10 @@ class Vector_db:
                 
                 # Add the table father element to the documents database
                 self.__add_docs(id, "table", None, parent_id)
+
+                # Filter None values from the lists
+                header_children = list(filter(None, header_children))
+                body_children = list(filter(None, body_children))
                 
                 # Update the father with the info about the children
                 self.documents_bd[id]["head_children"] = header_children
@@ -219,12 +223,25 @@ class Vector_db:
         else:
             head_children = el.get("head_children", [])
             body_children = el.get("body_children", [])
+
+            # Filter None values from the lists
+            head_children = list(filter(None, head_children))
+            body_children = list(filter(None, body_children))
+
             if head_children:
                 tree["head_children"] = [self.__build_doc_tree(child_id) for child_id in head_children]
             if body_children:
                 tree["body_children"] = [self.__build_doc_tree(child_id) for child_id in body_children]
         
         return tree
+
+    def __get_parent_documents(self, docs: list, level: int = 1):
+
+        # Return to the parent level of each document
+        for i in range(level):
+            docs = [self.__get_parent_id(id) for id in docs]
+        
+        return docs
     
     def query_db(self, query):
 
@@ -248,7 +265,7 @@ class Vector_db:
 
         # Return to the parent level of each document for bigger context
         relevant_docs = set([id for _, _, id in relevant_docs])
-        relevant_docs = [self.__get_parent_id(id) for id in relevant_docs]
+        relevant_docs = self.__get_parent_documents(relevant_docs, 2)
 
         # Remove duplicate parents
         relevant_docs = set(relevant_docs)
