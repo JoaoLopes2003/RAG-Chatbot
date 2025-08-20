@@ -2,6 +2,9 @@ var express = require('express');
 var axios = require('axios');
 var router = express.Router();
 
+var VECTOR_DB_URL = process.env.VECTOR_DB_HOST;
+var LLM_URL = process.env.LLM_HOST;
+
 /* POST LLM answer. */
 router.post('/', async function(req, res, next) {
     if (!req.body || !req.body.prompt) {
@@ -15,7 +18,7 @@ router.post('/', async function(req, res, next) {
     try {
         console.log('Sending request to search engine...');
         const searchResponse = await axios.post(
-            'http://localhost:3003/search',
+            `${VECTOR_DB_URL}/search`,
             { query: req.body.prompt },
             { headers: { 'Content-Type': 'application/json' } }
         );
@@ -35,7 +38,7 @@ router.post('/', async function(req, res, next) {
     try {
         console.log('Sending request to LLM service...');
         const llmResponse = await axios.post(
-            'http://localhost:3002/llm',
+            `${LLM_URL}/llm`,
             req.body,
             { headers: { 'Content-Type': 'application/json' } }
         );

@@ -10,7 +10,7 @@ class ChatBot {
         this.resendMessage = false
         this.lastMessage = ''
         this.history = [];
-        
+
         this.initializeEventListeners();
 
         this.converter = new showdown.Converter({
@@ -100,7 +100,7 @@ class ChatBot {
         
         try {
             // Send request to server
-            const response = await fetch('http://localhost:3000/llm', {
+            const response = await fetch('http://localhost:3001/llm', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

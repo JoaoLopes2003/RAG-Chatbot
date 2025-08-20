@@ -13,8 +13,6 @@ services:
 
   api:
     build: .
-    ports:
-      - "3002:3002"  # FastAPI exposed on this port
     depends_on:
       - ollama
     environment:

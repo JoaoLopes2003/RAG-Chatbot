@@ -1,0 +1,55 @@
+services:
+    vector_db:
+        build: vector_db/
+        networks:
+            - backend
+    
+    backend:
+        build: backend/
+        depends_on:
+            - vector_db
+        environment:
+            - VECTOR_DB_HOST=http://vector_db:3003
+            - LLM_HOST=http://api:3002
+        networks:
+            - frontend
+            - backend
+    
+    ollama:
+        extends:
+            file: llm_app/docker-compose.yml
+            service: ollama
+        networks:
+            - llm
+    
+    api:
+        extends:
+            file: llm_app/docker-compose.yml
+            service: api
+        networks:
+            - backend
+            - llm
+    
+    frontend:
+        build: frontend/
+        ports:
+            - "3001:3001"
+        depends_on:
+            - backend
+            - api
+        environment:
+            - BACKEND_HOST=http://backend:3000
+        networks:
+            - frontend
+            - backend
+
+networks:
+    frontend:
+        driver: bridge
+    backend:
+        driver: bridge
+    llm:
+        driver: bridge
+
+volumes:
+    ollama_data:
