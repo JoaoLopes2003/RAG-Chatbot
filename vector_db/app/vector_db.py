@@ -250,7 +250,7 @@ class Vector_db:
         embedding = np.array(result["embedding"], dtype="float32").reshape(1, -1)
 
         # Search the vector database
-        D, I = self.vector_bd.search(embedding, k=20)
+        D, I = self.vector_bd.search(embedding, k=3)
 
         # Map the indexes to the respective blocks
         docs = []
@@ -265,7 +265,7 @@ class Vector_db:
 
         # Return to the parent level of each document for bigger context
         relevant_docs = set([id for _, _, id in relevant_docs])
-        relevant_docs = self.__get_parent_documents(relevant_docs, 2)
+        relevant_docs = self.__get_parent_documents(relevant_docs, 1)
 
         # Remove duplicate parents
         relevant_docs = set(relevant_docs)
