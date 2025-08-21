@@ -2,3 +2,5 @@ fastapi
 uvicorn
 pydantic
 ollama
+google.generativeai
+python-dotenv

@@ -201,6 +201,7 @@ class ChatBot {
         const chatbotMessage = loaderEl.parentElement
         loaderEl.remove()
 
+        console.log(content)
         // Parse markdown to HTML
         const htmlContent = this.converter.makeHtml(content);
 

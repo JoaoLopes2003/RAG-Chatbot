@@ -18,5 +18,4 @@ def query_search_engine(query_req: QueryRequest):
         pretty_xml = minidom.parseString(doc).toprettyxml(indent="  ")
         print(pretty_xml)
 
-    print(xml_response)
     return QueryResponse(response=xml_response, media_type="application/xml")

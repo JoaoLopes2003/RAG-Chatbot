@@ -6,5 +6,5 @@ router = APIRouter()
 
 @router.post("/", response_model=PromptResponse)
 def get_llm_response(prompt_req: PromptRequest):
-    answer = generate_response(prompt=prompt_req.prompt, history=prompt_req.history)
+    answer = generate_response(prompt=prompt_req.prompt, history=prompt_req.history, documents=prompt_req.documents)
     return PromptResponse(response=answer)
