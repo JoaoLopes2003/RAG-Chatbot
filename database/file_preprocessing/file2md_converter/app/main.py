@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routes import query_translator
+from routes import convert2md
 
-app = FastAPI(title="Converter from any format to markdown format API")
+app = FastAPI(title="Convert from any format to markdown format API")
 
 # Add CORS middleware
 app.add_middleware(
@@ -13,4 +13,4 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(query_translator.router, prefix="/query_translator")
+app.include_router(convert2md.router, prefix="/convert2md")

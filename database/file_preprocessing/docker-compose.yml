@@ -1,0 +1,12 @@
+services:
+    file2md_converter:
+        build: file2md_converter/
+        ports:
+            - "3005:3005"
+        volumes:
+            - type: bind
+              source: tmp/
+              target: /tmp/
+            - type: bind
+              source: ../original_files/
+              target: /original_files/

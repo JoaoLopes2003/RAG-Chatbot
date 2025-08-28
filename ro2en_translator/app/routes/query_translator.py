@@ -2,9 +2,6 @@ from fastapi import APIRouter
 from services.ro2en import generate_response
 from schemas.messages import PromptRequest, PromptResponse
 
-import xml.etree.ElementTree as ET
-from xml.dom import minidom
-
 router = APIRouter()
 
 @router.post("/", response_model=PromptResponse)
