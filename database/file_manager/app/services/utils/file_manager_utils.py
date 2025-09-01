@@ -4,27 +4,11 @@ import google.generativeai as genai
 import time
 import random
 from typing import Tuple
-from ..file_manager import FILE
+from services.file import FILE
 from .. import myconstants
+from .read_markdown_content import read_markdown_content
 
 EXAMPLES_PER_PROMPT = myconstants.EXAMPLES_PER_PROMPT
-
-def get_files_paths(root: str) -> list[str]:
-
-    # Get the folders
-    folders_of_files = [f for f in os.listdir(root) 
-                             if os.path.isdir(os.path.join(root, f))]
-
-    #  Get the files inside each folder
-    file_paths = []
-    for folder in folders_of_files:
-        folder_path = os.path.join(root, folder)
-        folder_files = [os.path.join(folder_path, file)
-                       for file in os.listdir(folder_path) 
-                       if os.path.isfile(file)]
-        file_paths.extend(folder_files)
-    
-    return file_paths
 
 def check_missing_conversions(paths: list[str], converted_paths: list[str]) -> Tuple[list[str], list[str]]:
     """
@@ -49,11 +33,12 @@ def check_missing_conversions(paths: list[str], converted_paths: list[str]) -> T
     # 3. Find the differences using set operations.
     keys_to_convert = source_keys - converted_keys
     keys_to_delete = converted_keys - source_keys
+    keys_converted = source_keys & converted_keys
 
     # 4. Use the keys to retrieve the original full paths from our maps.
     files_to_convert = [source_map[key] for key in keys_to_convert]
     files_to_delete = [converted_map[key] for key in keys_to_delete]
-    files_converted = [source_map[key] for key in converted_keys]
+    files_converted = [source_map[key] for key in keys_converted]
 
     return files_converted, files_to_convert, files_to_delete
 
@@ -75,7 +60,7 @@ def files_per_folder_for_preload(folders_info: dict[str, dict], storage_limit_pe
             f_size = f.size
             if current_size_sum + f_size > storage_limit_per_folder:
                 break
-            files_to_upload.append(f.original_file_path)
+            files_to_upload.append(f)
             current_size_sum += f_size
             files_added += 1
         
@@ -150,25 +135,6 @@ def files_for_preload(files_dict: dict[str, dict[str, FILE]], storage_limit: int
     
     return files_to_upload
 
-def get_mime_type(extension: str) -> str:
-    """Gets the MIME type for a given file path based on its extension."""
-    # A map of common extensions to their MIME types
-    mime_type_map = {
-        ".pdf": "application/pdf",
-        ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        ".pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-        ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        ".jpg": "image/jpeg",
-        ".jpeg": "image/jpeg",
-        ".png": "image/png",
-        ".webp": "image/webp",
-        ".mp3": "audio/mpeg",
-        ".wav": "audio/wav",
-        ".mp4": "video/mp4",
-        ".txt": "text/plain",
-    }
-    return mime_type_map.get(extension)
-
 # Shuffle a list of file object, returning a list where the files from each folder are intercalated
 def get_balanced_shuffled_files(files: list[FILE]) -> list[FILE]:
 
@@ -187,8 +153,52 @@ def get_balanced_shuffled_files(files: list[FILE]) -> list[FILE]:
     max_files = max(len(files) for files in filenames_per_folder) if filenames_per_folder else 0
     
     for i in range(max_files):
-        for folder_files in filenames_per_folder:
+        for folder_files in filenames_per_folder.values():
             if i < len(folder_files):
                 filenames_intercalated.append(folder_files[i])
     
     return filenames_intercalated
+
+def create_prompt(file: FILE, examples: list[FILE], target_format: str = "Markdown") -> tuple:
+
+    # Create the system prompt
+    if examples:
+        system_prompt = f"""You are an expert at converting {file.file_extension} files to {target_format}.
+
+    I will show you example pairs where:
+    1. First, you'll see the original {file.file_extension} file (uploaded)
+    2. Then, you'll see the expected {target_format} conversion (as text)
+
+    After the example pairs, I am going to provide another file with the {file.file_extension} extension and I want you to convert it to {target_format}. Give only the conversion, and no extra commentary, formatting, or chattiness. Convert the file from {file.file_extension} format to {target_format}.
+    """
+    else:
+        return [
+                f"Convert the following {file.file_extension} file to Markdown format. ",
+                f"Give only the Markdown conversion, no extra commentary.\n",
+                f"{file.file_extension.upper()} file:\n",
+                file.gemini_obj
+            ]
+    
+    content_parts = [system_prompt]
+
+    # Add each example pair
+    for example_file in examples:
+        
+        # Read converted markdown content
+        markdown_content = read_markdown_content(example_file.md_file_path)
+        
+        # Add to content parts
+        content_parts.extend([
+            f"Original file: ",
+            example_file.gemini_obj,
+            f"\n{target_format}:\n{markdown_content}\n",
+        ])
+
+    # Add to content parts
+    content_parts.extend([
+        f"Original file: ",
+        file.gemini_obj,
+        f"\n{target_format}:",
+    ])
+
+    return content_parts

@@ -4,8 +4,13 @@ from dotenv import load_dotenv
 import google.generativeai as genai
 import time
 import random
-from .utils.file_manager_utils import get_files_paths, check_missing_conversions, files_for_preload, get_mime_type, get_balanced_shuffled_files
+from .utils.file_manager_utils import check_missing_conversions, files_for_preload, get_balanced_shuffled_files, create_prompt
 from . import myconstants
+from .utils.get_files_paths import get_files_paths
+from .utils.get_mime_type import get_mime_type
+from . import myconstants
+from .file import FILE
+from .utils.manage_genai_storage import cleanup_all_files
 
 load_dotenv()
 try:
@@ -19,42 +24,16 @@ model = genai.GenerativeModel(
     model_name='gemini-1.5-pro-latest'
 )
 
-class FILE():
-    def __init__(self, file_path: str, md_files_folder_path: str, uploaded: bool = False):
-
-        p = Path(file_path)
-
-        self.filename = p.stem
-        self.file_extension = p.suffix
-        self.folder = p.parent.name
-        self.original_file_path = file_path
-        self.size = os.path.getsize(file_path)
-        self.uploaded = uploaded
-        self.gemini_obj = None
-
-        # Path to the converted version of the file
-        md_base_path = Path(md_files_folder_path)
-        new_filename = f"{p.name}.md"
-        self.md_file_path: str = str(md_base_path / self.folder / new_filename)
-    
-    def on_cloud(self, file_obj):
-        self.uploaded = True
-        self.gemini_obj = file_obj
-    
-    def off_cloud(self):
-        self.uploaded = False
-        self.gemini_obj = None
-
 class FILE_MANAGER():
 
-    def __init__(self, original_files_folder_path: str, md_files_folder_path: str, unprocessed_files_folder_path: str):
+    def __init__(self):
         self.storage_limit = 18 # Gigabytes / The real limit is 20GB but we decided to leave some free space
         self.file_size_limit = 2 # Gigabytes
         self.file_lifetime_in_cloud = 48 # Hours
         self.total_used_memory = 0
-        self.original_files_folder_path = original_files_folder_path
-        self.md_files_folder_path = md_files_folder_path
-        self.unprocessed_files_folder_path = unprocessed_files_folder_path
+        self.original_files_folder_path = myconstants.ORIGINAL_FILES_FOLDER
+        self.md_files_folder_path = myconstants.CONVERTED_FILES
+        self.unprocessed_files_folder_path = myconstants.UNPROCESS_FILES_DIR
         self.files = {} # Map: folder -> Map: filename -> FILE_OBJECT
 
         # Check if directories for the files are valid
@@ -63,6 +42,8 @@ class FILE_MANAGER():
         if not os.path.isdir(self.md_files_folder_path):
             raise FileNotFoundError(f"Directory for the markdown version of the files not found: {self.md_files_folder_path}")
         
+        print("CREATING FILE MANAGER.", flush=True)
+
         # Get the paths to every file in both directories
         original_files_paths = get_files_paths(self.original_files_folder_path)
         md_files_paths = get_files_paths(self.md_files_folder_path)
@@ -72,13 +53,13 @@ class FILE_MANAGER():
 
         # Delete the md files with no original version
         for f in md_files_without_original:
-            self.delete_example_file(f)
+            self.delete_file(f)
 
         # Store the info about the converted files
         for path in files_converted:
 
             # Create a new File instance
-            file_obj = self.FILE(path, self.md_files_folder_path)
+            file_obj = FILE(path, self.md_files_folder_path, converted=True)
 
             # Add it to the files dict
             parent_folder = file_obj.folder
@@ -93,16 +74,16 @@ class FILE_MANAGER():
             self.upload_file(f)
         
         # Convert the files that needed conversion found before
-        for file in need_conversion_files:
-            status = self.convert_file(file)
+        self.convert_files(need_conversion_files)
 
         # Get the paths for the files in the unprocessed files folder
-        unprocessed_files = [os.path.join(self.unprocessed_files_folder_path, file)
-                       for file in os.listdir(self.unprocessed_files_folder_path) 
-                       if os.path.isfile(file)]
+        unprocessed_files = get_files_paths(self.unprocessed_files_folder_path)
+
+        # Convert the unprocessed files
+        self.convert_files(unprocessed_files)
 
     
-    def delete_example_file(self, file_path: str) -> bool:
+    def delete_file(self, file_path: str) -> bool:
 
         # Check if path exists and is a file
         if not os.path.isfile(file_path):
@@ -178,7 +159,7 @@ class FILE_MANAGER():
         # Check if only files from a specific folder are to be retrieved
         if folder:
             if folder in self.files.keys():
-                for file_obj in folder_dict[folder].values():
+                for file_obj in self.files[folder].values():
                     if not file_obj.uploaded:
                         unloaded_files.append(file_obj)
             else:
@@ -229,12 +210,12 @@ class FILE_MANAGER():
         _fill_from_source(get_balanced_shuffled_files(other_loaded))
         
         # Priority 4: All other UNLOADED examples (shuffled and balanced)
-        other_unloaded = self.get_unloaded_examples(exclude_folder=template_folder)
+        other_unloaded = self.get_unloaded_examples()
         _fill_from_source(get_balanced_shuffled_files(other_unloaded))
 
         return selected_examples
 
-    def upload_file_to_gemini(self, file_path: str, mime_type: str = None):
+    def upload_file_to_gemini(self, file: FILE, mime_type: str = None):
         """
         Upload a file to Gemini and return the file object.
         
@@ -245,13 +226,35 @@ class FILE_MANAGER():
         Returns:
             genai.File: The uploaded file object
         """
+
+        # 1. VERIFY: Check if we have a record of a previous upload.
+        if file.gemini_obj and hasattr(file.gemini_obj, 'name'):
+            print(f"File '{file.original_file_path}' has a known cloud ID. Verifying its existence...", flush=True)
+            try:
+                # Attempt a fast, targeted retrieval of the file by its unique name.
+                verified_file_obj = genai.get_file(file.gemini_obj.name)
+                print("Verification successful. File is already on the cloud. Skipping upload.", flush=True)
+                
+                # Update the local state in case it was wrong
+                file.on_cloud(verified_file_obj) 
+                return verified_file_obj
+
+            except Exception as e:
+                # The file was deleted from the cloud.
+                print(f"Verification failed: {e}. File no longer on cloud. Proceeding with fresh upload.", flush=True)
+                # Clear the old, invalid state before re-uploading.
+                file.off_cloud()
+        
+        file_path = file.original_file_path
+        print(f"Uploading file to cloud: {file_path}", flush=True)
+
         try:
             file = genai.upload_file(file_path, mime_type=mime_type)
-            print(f"Uploaded file: {file.name}")
+            print(f"Uploaded file: {file.name}", flush=True)
             
             # Wait for the file to be processed
             while file.state.name == "PROCESSING":
-                print("Processing file...")
+                print("Processing file...", flush=True)
                 time.sleep(2)
                 file = genai.get_file(file.name)
             
@@ -261,7 +264,7 @@ class FILE_MANAGER():
             return file
             
         except Exception as e:
-            print(f"Error uploading file {file_path}: {e}")
+            print(f"Error uploading file {file_path}: {e}", flush=True)
             raise
     
     def add_memory(self, value: int):
@@ -284,12 +287,14 @@ class FILE_MANAGER():
 
         needed_space = self.file_batch_size(not_uploaded)
 
-        if self.total_used_memory + needed_space < self.storage_limit:
+        storage_limit = self.storage_limit * 10**9
+
+        if self.total_used_memory + needed_space < storage_limit:
             return
         else:
 
             # Randomly remove files from the cloud until enough space is available
-            missing_space = self.total_used_memory + needed_space - self.storage_limit
+            missing_space = self.total_used_memory + needed_space - storage_limit
             uploads_not_needed = list(loaded_examples_set - examples_to_upload_set)
             random.shuffle(uploads_not_needed)
             while missing_space > 0:
@@ -302,18 +307,19 @@ class FILE_MANAGER():
     
     def upload_file(self, file: FILE):
         mime_type = get_mime_type(file.file_extension)
-        file_obj = self.upload_file_to_gemini(file.original_file_path, mime_type)
+        file_obj = self.upload_file_to_gemini(file, mime_type)
 
         # Update the file info
         if file_obj:
+            print(file.filename, flush=True)
             file.on_cloud(file_obj)
             self.add_memory(file.size)
     
     def convert_file(self, file: FILE) -> bool:
 
-        folder_name = Path(file).parent.name
+        folder_name = file.folder
         loaded_examples = self.get_loaded_examples()
-        examples_to_use = self.find_examples(self.files, loaded_examples, folder_name)
+        examples_to_use = self.find_examples(loaded_examples, folder_name)
 
         # Ensure there are enough free memory in the cloud available
         self.manage_memory(loaded_examples, examples_to_use)
@@ -321,4 +327,45 @@ class FILE_MANAGER():
         # Upload the examples that are not in the cloud
         for f in examples_to_use:
             self.upload_file(f)
+        
+        # Upload the file we want to convert
+        self.upload_file(file)
+        
+        # Create prompt
+        prompt = create_prompt(file, examples_to_use)
+
+        # Generate the conversion
+        print("Generating conversion...", flush=True)
+        try:
+            response = model.generate_content(
+                contents=prompt,
+            )
+            file.file_converted()
+        except Exception as e:
+            print(f"Could not convert the file {file.filename}: {e}", flush=True)
+            return False
+        
+        # Write the conversion to a file
+        with open(file.md_file_path, 'w', encoding='utf-8') as f:
+            f.write(response.text)
+        
+        print(f"Conversion saved to: {file.md_file_path}", flush=True)
+        return True
+    
+    def convert_files(self, paths_files: list[str]):
+
+        for path in paths_files:
+            file = FILE(path, self.md_files_folder_path)
+            
+            number_tries = 0
+            status = False
+            while not status and number_tries < 3:
+                status = self.convert_file(file)
+                number_tries += 1
+            
+            if not status:
+                self.delete_file(path)
+
+        
+
         

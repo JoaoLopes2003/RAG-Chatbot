@@ -1,0 +1,15 @@
+services:
+    file_manager:
+        build: .
+        ports:
+            - "3005:3005"
+        volumes:
+            - type: bind
+              source: converted_files/
+              target: /converted_files/
+            - type: bind
+              source: unprocessed_files/
+              target: /unprocessed_files/
+            - type: bind
+              source: original_files/
+              target: /original_files/
