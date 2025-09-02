@@ -13,3 +13,6 @@ services:
             - type: bind
               source: original_files/
               target: /original_files/
+            - type: bind
+              source: modify_files/
+              target: /modify_files/

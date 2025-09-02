@@ -3,6 +3,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 import google.generativeai as genai
 import time
+import shutil
 import random
 from .utils.file_manager_utils import check_missing_conversions, files_for_preload, get_balanced_shuffled_files, create_prompt
 from . import myconstants
@@ -34,28 +35,43 @@ class FILE_MANAGER():
         self.original_files_folder_path = myconstants.ORIGINAL_FILES_FOLDER
         self.md_files_folder_path = myconstants.CONVERTED_FILES
         self.unprocessed_files_folder_path = myconstants.UNPROCESS_FILES_DIR
+        self.modify_files_folder_path = myconstants.MODIFY_FILES_DIR
         self.files = {} # Map: folder -> Map: filename -> FILE_OBJECT
+
+        print("Initializing file manager...", flush=True)
+
+        # Delete any existing files in the cloud
+        print("=> Cleaning the gemini cloud storage... ", flush=True, end="")
+        cleanup_all_files()
+        print("(DONE)", flush=True)
 
         # Check if directories for the files are valid
         if not os.path.isdir(self.original_files_folder_path):
             raise FileNotFoundError(f"Directory for the original files not found: {self.original_files_folder_path}")
         if not os.path.isdir(self.md_files_folder_path):
             raise FileNotFoundError(f"Directory for the markdown version of the files not found: {self.md_files_folder_path}")
-        
-        print("CREATING FILE MANAGER.", flush=True)
 
         # Get the paths to every file in both directories
+        print("=> Getting original files paths... ", flush=True, end="")
         original_files_paths = get_files_paths(self.original_files_folder_path)
+        print("(DONE)", flush=True)
+        print("=> Getting converted files paths... ", flush=True, end="")
         md_files_paths = get_files_paths(self.md_files_folder_path)
+        print("(DONE)", flush=True)
 
         # Check which if there are files without the conversion stored
+        print("=> Checking files conversion status... ", flush=True, end="")
         files_converted, need_conversion_files, md_files_without_original = check_missing_conversions(original_files_paths, md_files_paths)
+        print("(DONE)", flush=True)
 
         # Delete the md files with no original version
+        print("=> Deleting md files with no original version... ", flush=True, end="")
         for f in md_files_without_original:
             self.delete_file(f)
+        print("(DONE)", flush=True)
 
         # Store the info about the converted files
+        print("=> Storing info about converted files... ", flush=True, end="")
         for path in files_converted:
 
             # Create a new File instance
@@ -67,20 +83,39 @@ class FILE_MANAGER():
                 self.files[parent_folder] = {}
             file_key = file_obj.filename + file_obj.file_extension
             self.files[parent_folder][file_key] = file_obj
+        print("(DONE)", flush=True)
         
         # Preload files to the gemini cloud
+        print("=> Preload files to Gemini API... ", flush=True, end="")
         files_to_upload = files_for_preload(self.files)
         for f in files_to_upload:
             self.upload_file(f)
+        print("(DONE)", flush=True)
         
         # Convert the files that needed conversion found before
+        print("=> Converting stored files without md conversion... ", flush=True, end="")
         self.convert_files(need_conversion_files)
+        print("(DONE)", flush=True)
 
         # Get the paths for the files in the unprocessed files folder
+        print("=> Getting unprocessed files paths... ", flush=True, end="")
         unprocessed_files = get_files_paths(self.unprocessed_files_folder_path)
+        print("(DONE)", flush=True)
 
         # Convert the unprocessed files
-        self.convert_files(unprocessed_files)
+        print("=> Converting the unprocessed files... ", flush=True, end="")
+        self.convert_files(unprocessed_files, new_files_flag=True)
+        print("(DONE)", flush=True)
+
+        # Get the paths for the files in the files to modify folder
+        print("=> Getting unprocessed files paths... ", flush=True, end="")
+        modify_files = get_files_paths(self.modify_files_folder_path)
+        print("(DONE)", flush=True)
+
+        # Convert the files that need modification
+        print("=> Converting the files that need modification... ", flush=True, end="")
+        self.convert_files(modify_files, new_files_flag=True, allow_override=True)
+        print("(DONE)", flush=True)
 
     
     def delete_file(self, file_path: str) -> bool:
@@ -122,7 +157,6 @@ class FILE_MANAGER():
         try:
             remote_files = genai.list_files()
             remote_file_ids = {f.name for f in remote_files}
-            print(f"Found {len(remote_file_ids)} files on the cloud.", flush=True)
         except Exception as e:
             print(f"Could not retrieve files from the cloud API: {e}", flush=True)
             # Return an empty list in case of error
@@ -139,13 +173,9 @@ class FILE_MANAGER():
                         if gemini_id in remote_file_ids:
                             confirmed_loaded_files.append(file_obj)
                         else:
-                            print(f"Sync issue: File '{file_obj.original_file_path}' "
-                                f"(ID: {gemini_id}) is marked as uploaded but not found on cloud. Updating status.", flush=True)
                             file_obj.off_cloud()
                             self.free_memory(file_obj.size)
                     else:
-                        print(f"Sync issue: File '{file_obj.original_file_path}' "
-                            f"is marked as uploaded but has no valid cloud ID. Updating status.", flush=True)
                         file_obj.off_cloud()
                         self.free_memory(file_obj.size)
         
@@ -311,15 +341,44 @@ class FILE_MANAGER():
 
         # Update the file info
         if file_obj:
-            print(file.filename, flush=True)
             file.on_cloud(file_obj)
             self.add_memory(file.size)
     
-    def convert_file(self, file: FILE) -> bool:
+    def convert_file(self, file: FILE, allow_override: bool = False) -> int:
+        """
+        Converts a pdf file to Markdown.
+        
+        Args:
+            file: a file object with the info of the file we want to convert
+            allow_override: a flag that determines if we can override an existing file
+        
+        Returns:
+            int: A value that determines how the operation went. The options are:
+                - 0: Error converting
+                - 1: The operation went well
+                - 2: The file already exists and the allow_override is false
+        """
+
+        print(f"Starting to convert the file: {file.original_file_path}", flush=True)
+
+        # Check if it's ok to remove the file
+        file_exists = self.already_stored(file)
+        if file_exists and not allow_override:
+            return 2
 
         folder_name = file.folder
         loaded_examples = self.get_loaded_examples()
+        print("-"*30, flush=True)
+        print("Loaded Examples:", flush=True)
+        for f in loaded_examples:
+            print(f.filename, flush=True)
+        print("-"*30, flush=True)
         examples_to_use = self.find_examples(loaded_examples, folder_name)
+        print("-"*30, flush=True)
+        print("Examples to Use:", flush=True)
+        for f in examples_to_use:
+            print(f.filename, flush=True)
+        print("-"*30, flush=True)
 
         # Ensure there are enough free memory in the cloud available
         self.manage_memory(loaded_examples, examples_to_use)
@@ -343,29 +402,92 @@ class FILE_MANAGER():
             file.file_converted()
         except Exception as e:
             print(f"Could not convert the file {file.filename}: {e}", flush=True)
-            return False
+            return 0
+        
+        if file_exists and allow_override:
+            # Delete all info about the previous version of the file
+
+            # Delete the previous version of the original file
+            orig_base_path = Path(self.original_files_folder_path)
+            filename = f"{file.filename}{file.file_extension}"
+            old_file_path = str(orig_base_path / file.folder / filename)
+            self.delete_file(old_file_path)
+
+            # Delete The previous version of the conversion file
+            self.delete_file(file.md_file_path)
+
+            # Remove the file from the dictionary of files
+            filename = file.filename + file.file_extension
+            del self.files[file.folder][filename]
         
         # Write the conversion to a file
+        md_base_path = Path(self.md_files_folder_path)
+        new_folder = str(md_base_path / file.folder)
+        Path(new_folder).mkdir(parents=True, exist_ok=True)
         with open(file.md_file_path, 'w', encoding='utf-8') as f:
             f.write(response.text)
         
         print(f"Conversion saved to: {file.md_file_path}", flush=True)
-        return True
+
+        # Add the new file to the dictionary
+        self.update_files_dict(file)
+
+        return 1
     
-    def convert_files(self, paths_files: list[str]):
+    def convert_files(self, paths_files: list[str], new_files_flag: bool = False, allow_override: bool = False):
 
         for path in paths_files:
             file = FILE(path, self.md_files_folder_path)
             
             number_tries = 0
-            status = False
-            while not status and number_tries < 3:
-                status = self.convert_file(file)
+            status = 0
+            while status == 0 and number_tries < 3:
+                status = self.convert_file(file, allow_override)
                 number_tries += 1
             
-            if not status:
+            if status == 0 or status == 2:
                 self.delete_file(path)
+                if status == 0:
+                    print(f"ERROR: Could not convert the file: {file.filename}", flush=True)
+                elif status == 2:
+                    print(f"ERROR: That file already exists and you can't override it this way: {file.filename}", flush=True)
+            elif new_files_flag:
+                # Store the unprocessed file in the original_files folder
+                self.unprocessed_to_processed(file)
+    
+    def update_files_dict(self, file: FILE):
 
-        
+        if file.folder not in self.files:
+            self.files[file.folder] = {}
+        key_file = file.filename + file.file_extension
+        self.files[file.folder][key_file] = file
+    
+    def unprocessed_to_processed(self, file: FILE):
+        orig_base_path = Path(self.original_files_folder_path)
+        filename = f"{file.filename}{file.file_extension}"
+        new_folder = str(orig_base_path / file.folder)
+        new_file_path = str(orig_base_path / file.folder / filename)
 
-        
+        # Switch to the new location
+        Path(new_folder).mkdir(parents=True, exist_ok=True)
+        shutil.move(file.original_file_path, new_file_path)
+
+        # Update the object info
+        previous_path = file.original_file_path
+        file.update_orig_location(new_file_path)
+
+        # Delete the original unprocessed folder if it's empty
+        folder_path = Path(previous_path).parent
+
+        if len(os.listdir(folder_path)) == 0:
+            os.rmdir(folder_path)
+    
+    # Checks if a file is already stored
+    def already_stored(self, file: FILE) -> bool:
+
+        folder = file.folder
+        filename = file.filename + file.file_extension
+
+        if folder in self.files and filename in self.files[folder]:
+            return True
+        return False

@@ -18,7 +18,7 @@ class FILE():
         # Path to the converted version of the file
         md_base_path = Path(md_files_folder_path)
         new_filename = f"{p.name}.md"
-        self.md_file_path: str = str(md_base_path / self.folder / new_filename)
+        self.md_file_path = str(md_base_path / self.folder / new_filename)
     
     def on_cloud(self, file_obj):
         self.uploaded = True
@@ -30,3 +30,6 @@ class FILE():
     
     def file_converted(self):
         self.converted = True
+    
+    def update_orig_location(self, new_path):
+        self.original_file_path = new_path

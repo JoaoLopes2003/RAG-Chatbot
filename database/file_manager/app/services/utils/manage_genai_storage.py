@@ -12,6 +12,6 @@ def cleanup_all_files():
     for file in files:
         try:
             genai.delete_file(file.name)
-            print(f"Deleted: {file.display_name}")
+            print(f"Deleted: {file.display_name}", flush=True)
         except Exception as e:
-            print(f"Error deleting {file.display_name}: {e}")
+            print(f"Error deleting {file.display_name}: {e}", flush=True)
