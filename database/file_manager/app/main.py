@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routes import convert2md
+from routes import file_manager
 
 app = FastAPI(title="Convert from any format to markdown format API")
 
@@ -13,4 +13,4 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(convert2md.router, prefix="/convert2md")
+app.include_router(file_manager.router, prefix="")

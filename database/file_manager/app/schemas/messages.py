@@ -1,9 +1,14 @@
 from pydantic import BaseModel
+from typing import Optional
 
-class PromptRequest(BaseModel):
-    template_folder: str
-    file_path: str
+class UploadFileResponse(BaseModel):
+    uploaded: bool
+    error: str
 
-class PromptResponse(BaseModel):
-    req_status: int
-    file_path: str
+class DeleteFileRequest(BaseModel):
+    filename: str
+    folder: Optional[str] = "undefined"
+
+class GetFileRequest(BaseModel):
+    filename: str
+    folder: Optional[str] = "undefined"

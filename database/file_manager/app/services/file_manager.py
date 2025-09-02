@@ -11,7 +11,7 @@ from .utils.get_files_paths import get_files_paths
 from .utils.get_mime_type import get_mime_type
 from . import myconstants
 from .file import FILE
-from .utils.manage_genai_storage import cleanup_all_files
+from .utils.manage_genai_storage import cleanup_all_files, cleanup_file
 
 load_dotenv()
 try:
@@ -67,7 +67,7 @@ class FILE_MANAGER():
         # Delete the md files with no original version
         print("=> Deleting md files with no original version... ", flush=True, end="")
         for f in md_files_without_original:
-            self.delete_file(f)
+            self.delete_single_file(f)
         print("(DONE)", flush=True)
 
         # Store the info about the converted files
@@ -118,29 +118,25 @@ class FILE_MANAGER():
         print("(DONE)", flush=True)
 
     
-    def delete_file(self, file_path: str) -> bool:
+    def delete_single_file(self, file_path: str):
+        """Low-level file and empty parent directory deletion.
+           Raises exceptions on failure."""
+        if not file_path or not os.path.isfile(file_path):
+            print(f"File not found or path is invalid, skipping deletion: {file_path}", flush=True)
+            return # Not an error, just nothing to do
 
-        # Check if path exists and is a file
-        if not os.path.isfile(file_path):
-            print(f"The given path was not found or is not a file: {file_path}", flush=True)
-            return False
-        
         try:
-            # Get the path of the parent directory before deleting the file
             parent_dir = os.path.dirname(file_path)
-
-            # Delete the file
             print(f"Deleting file: {file_path}", flush=True)
             os.remove(file_path)
             
-            # Delete the parent directory if empty
+            # Attempt to remove parent directory if it's empty
             if not os.listdir(parent_dir):
-                print(f"Parent directory '{parent_dir}' is now empty. Deleting it.", flush=True)
+                print(f"Parent directory '{parent_dir}' is empty, deleting.", flush=True)
                 os.rmdir(parent_dir)
-            else:
-                print(f"Parent directory '{parent_dir}' is not empty. Leaving it.", flush=True)
-            
-            return True
+        except OSError as e:
+            print(f"OS error during deletion of {file_path}: {e}", flush=True)
+            raise e
 
         except OSError as e:
             # Catch potential file system errors (e.g., permissions denied)
@@ -406,19 +402,7 @@ class FILE_MANAGER():
         
         if file_exists and allow_override:
             # Delete all info about the previous version of the file
-
-            # Delete the previous version of the original file
-            orig_base_path = Path(self.original_files_folder_path)
-            filename = f"{file.filename}{file.file_extension}"
-            old_file_path = str(orig_base_path / file.folder / filename)
-            self.delete_file(old_file_path)
-
-            # Delete The previous version of the conversion file
-            self.delete_file(file.md_file_path)
-
-            # Remove the file from the dictionary of files
-            filename = file.filename + file.file_extension
-            del self.files[file.folder][filename]
+            self.delete_file_from_server(file)
         
         # Write the conversion to a file
         md_base_path = Path(self.md_files_folder_path)
@@ -446,7 +430,7 @@ class FILE_MANAGER():
                 number_tries += 1
             
             if status == 0 or status == 2:
-                self.delete_file(path)
+                self.delete_single_file(path)
                 if status == 0:
                     print(f"ERROR: Could not convert the file: {file.filename}", flush=True)
                 elif status == 2:
@@ -491,3 +475,71 @@ class FILE_MANAGER():
         if folder in self.files and filename in self.files[folder]:
             return True
         return False
+    
+    # Upload a new file
+    def post_new_file(self, file_path: str, modify_file: bool = False) -> bool:
+
+        # Create the complete path to the file
+        if modify_file:
+            folder_path = Path(self.modify_files_folder_path)
+        else:
+            folder_path = Path(self.unprocessed_files_folder_path)
+        file_path = str(folder_path / file_path)
+
+        # Check if the file exists
+        if not os.path.isfile(file_path):
+            raise Exception("File doesn't exist")
+
+        # Create a new file instance
+        file = FILE(file_path, self.md_files_folder_path)
+
+        number_tries = 0
+        status = 0
+        while status == 0 and number_tries < 3:
+            status = self.convert_file(file, modify_file)
+            number_tries += 1
+        
+        if status == 0 or status == 2:
+            self.delete_single_file(file_path)
+            if status == 0:
+                raise Exception(f"Could not convert the file: {file.filename}")
+            elif status == 2:
+                raise Exception(f"The file already exists and you can't override it this way: {file.filename}")
+        
+        self.unprocessed_to_processed(file)
+        return 200
+
+    def delete_file_from_server(self, file: FILE) -> bool:
+        """Orchestrates deletion from disk, cloud, and memory.
+           Returns True on success, raises exception on failure."""
+        try:
+            # 1. Delete original file from disk
+            orig_base_path = Path(self.original_files_folder_path)
+            filename_with_ext = f"{file.filename}{file.file_extension}"
+            original_file_path = str(orig_base_path / file.folder / filename_with_ext)
+            self.delete_single_file(original_file_path)
+
+            # 2. Delete converted file from disk
+            self.delete_single_file(file.md_file_path)
+
+            # 3. Delete from the cloud
+            if file.gemini_obj:
+                cleanup_file(file.gemini_obj)
+
+            # 4. If all previous steps succeeded, remove from in-memory state
+            del self.files[file.folder][filename_with_ext]
+            
+            print(f"Successfully deleted all artifacts for {filename_with_ext}", flush=True)
+            return True
+
+        except Exception as e:
+            print(f"Failed to fully delete file {file.filename}: {e}", flush=True)
+            # Re-raise the exception so the router can return a 500 error
+            raise e
+    
+    def get_file_obj(self, relative_path: str) -> FILE | None:
+        path = Path(relative_path)
+        folder = path.parent.name
+        filename = path.name
+
+        return self.files.get(folder, {}).get(filename)
