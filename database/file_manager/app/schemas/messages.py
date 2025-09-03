@@ -12,3 +12,4 @@ class DeleteFileRequest(BaseModel):
 class GetFileRequest(BaseModel):
     filename: str
     folder: Optional[str] = "undefined"
+    converted: Optional[bool] = False

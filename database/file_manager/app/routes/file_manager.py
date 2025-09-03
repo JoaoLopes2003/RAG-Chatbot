@@ -23,6 +23,7 @@ def delete_file(request_data: GetFileRequest):
 
     folder = request_data.folder
     filename = request_data.filename
+    converted = request_data.converted
     relative_path = str(Path(folder) / filename)
     file_obj = file_manager.get_file_obj(relative_path)
 
@@ -33,7 +34,10 @@ def delete_file(request_data: GetFileRequest):
             detail="Folder and/or filename are invalid."
         )
     
-    file_path = file_obj.original_file_path
+    if converted:
+        file_path = file_obj.md_file_path
+    else:
+        file_path = file_obj.original_file_path
 
     return FileResponse(path=file_path, filename=filename)
 
