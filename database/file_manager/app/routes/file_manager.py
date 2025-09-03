@@ -1,6 +1,6 @@
 import os
 import shutil
-from fastapi import APIRouter, UploadFile, HTTPException, status, Form, Body
+from fastapi import APIRouter, UploadFile, HTTPException, status, Form
 from fastapi.responses import FileResponse
 from pathlib import Path
 from services.file_manager import FILE_MANAGER
@@ -12,7 +12,7 @@ router = APIRouter()
 
 file_manager = FILE_MANAGER()
 
-UNPROCESSED_BASE_DIR = Path(myconstants.UNPROCESS_FILES_DIR)
+UNPROCESSED_BASE_DIR = Path(myconstants.UNPROCESSED_FILES_DIR)
 
 ALLOWED_CONTENT_TYPES = [
     "application/pdf"

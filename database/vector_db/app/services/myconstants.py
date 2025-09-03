@@ -1,0 +1,2 @@
+UNPROCESSED_FILES_DIR = "/unprocessed_files/"
+MAX_RETRIEVED_DOCUMENTS = 10

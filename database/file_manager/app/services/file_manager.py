@@ -34,7 +34,7 @@ class FILE_MANAGER():
         self.total_used_memory = 0
         self.original_files_folder_path = myconstants.ORIGINAL_FILES_FOLDER
         self.md_files_folder_path = myconstants.CONVERTED_FILES
-        self.unprocessed_files_folder_path = myconstants.UNPROCESS_FILES_DIR
+        self.unprocessed_files_folder_path = myconstants.UNPROCESSED_FILES_DIR
         self.modify_files_folder_path = myconstants.MODIFY_FILES_DIR
         self.files = {} # Map: folder -> Map: filename -> FILE_OBJECT
 
