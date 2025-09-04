@@ -1,14 +1,21 @@
 import shutil
-from fastapi import APIRouter, UploadFile, HTTPException, Body, status
+from fastapi import APIRouter, UploadFile, HTTPException, Body, status, Depends
 from pathlib import Path
 from services import myconstants
+
+from dependencies import get_vector_db
+from services.vector_db import Vector_db
 
 router = APIRouter()
 
 UNPROCESSED_FILES_DIR = Path(myconstants.UNPROCESSED_FILES_DIR)
 
 @router.post("/uploadfile", status_code=status.HTTP_201_CREATED)
-def upload_file(file: UploadFile, template_folder: str = Body("undefined")):
+async def upload_file(
+    file: UploadFile,
+    template_folder: str = Body("undefined"),
+    db: Vector_db = Depends(get_vector_db)
+):
         
     try:
         # Resolve the path to ensure it's within our base directory

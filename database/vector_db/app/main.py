@@ -10,8 +10,7 @@ from models.smart_chunk import SmartChunk
 from config.settings import settings
 from routes import vector_db
 from services.vector_db import Vector_db
-
-vector_db_instance: Vector_db | None = None
+import dependencies
 
 # --- Database Initialization Logic ---
 async def init_database():
@@ -37,14 +36,13 @@ async def lifespan(app: FastAPI):
     await init_database()
 
     # Create a vector_db instance
-    global vector_db_instance
-    vector_db_instance = await Vector_db.create()
+    dependencies.vector_db_instance = await Vector_db.create()
     print("Vector DB instance created and initial files processed.")
     
     yield
 
     print("Application shutdown...")
-    vector_db_instance = None
+    dependencies.vector_db_instance = None
 
 # --- FastAPI App Creation and Configuration ---
 app = FastAPI(
