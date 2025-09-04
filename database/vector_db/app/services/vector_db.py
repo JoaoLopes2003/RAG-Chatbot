@@ -131,7 +131,7 @@ class Vector_db():
         # Check for files to be updated
         files_to_modify = get_files_paths(self.modify_files_folder_path)
         if files_to_modify:
-            print(f"Found {len(files_to_process)} new files to update.", flush=True)
+            print(f"Found {len(files_to_modify)} new files to update.", flush=True)
             tasks = [self.process_file(f_path, update=True) for f_path in files_to_modify]
             await asyncio.gather(*tasks)
         else:
@@ -140,15 +140,18 @@ class Vector_db():
     async def process_file(self, path: str, update: bool = False):
         """Builds tree, generates embeddings, and saves everything to databases."""
 
+        # Get the relative path of the file
+        full_path_obj = Path(path)
+        filename = full_path_obj.name
+        parent_folder = full_path_obj.parent.name
+        rel_path = f"/{parent_folder}/{filename}/"
+
         if update:
-            full_path_obj = Path(path)
-            filename = full_path_obj.name
-            parent_folder = full_path_obj.parent.name
-            rel_path = f"/{parent_folder}/{filename}/"
+            print("Deleting the information of the previous version of the file...", flush=True)
             await self.delete_file_from_server(rel_path)
-            delete_single_file(path)
-        
-        print(f"Processing file: {path}", flush=True)
+            print(f"Processing the updated version: {path}", flush=True)
+        else:
+            print(f"Processing file: {path}", flush=True)
 
         # Generate the default embeddings
         default_embeddings = self._generate_embeddings_default(path)
@@ -163,7 +166,7 @@ class Vector_db():
 
             new_chunk_data = {
                 "embedding": emb,
-                "file_id": path,
+                "file_id": rel_path,
             }
             # Add to the database
             created_chunk = await default_chunk_controller.create_chunk(new_chunk_data)
@@ -189,7 +192,7 @@ class Vector_db():
             
             new_chunk_data = {
                 "embedding": emb,
-                "file_id": path,
+                "file_id": rel_path,
                 "start_pos": node["start_pos"],
                 "end_pos": node["end_pos"]
             }
@@ -205,14 +208,17 @@ class Vector_db():
 
         # Store the file info in MongoDB
         new_file_data = {
-            "filename": path,
+            "filename": rel_path,
             "chunks_ids_default_parsing": default_chunk_mongo_ids,
             "chunks_ids_smart_parsing": smart_chunk_mongo_ids
         }
         # Await the async database operation
         created_file = await file_controller.create_file(new_file_data)
-        self.files[path] = created_file
+        self.files[rel_path] = created_file
         print(f"Finished processing {path}. Added {len(smart_embeddings)} smart chunks and {len(default_embeddings)} default chunks.", flush=True)
+
+        # Delete file from the unprocessed files dir
+        delete_single_file(path)
 
     def _generate_embeddings_default(self, path: str) -> list[list[float]]:
         """Produce the default embeddings using standard LangChain chunking."""
@@ -320,7 +326,7 @@ class Vector_db():
         file_to_delete = self.files.pop(path, None)
         if not file_to_delete:
             print(f"File not found in memory cache: {path}. Checking database.", flush=True)
-            file_to_delete = await file_controller.get_file(path)
+            file_to_delete = await file_controller.get_file_by_filename(path)
             if not file_to_delete:
                 print(f"File not found in database: {path}. Nothing to delete.", flush=True)
                 return
@@ -346,5 +352,5 @@ class Vector_db():
             await smart_chunk_controller.delete_chunk(chunk_mongo_id)
         
         # Delete the File document itself
-        await file_controller.delete_file(path)
+        await file_controller.delete_file(file_to_delete.id)
         print(f"Successfully deleted file and cleaned up associated chunks for: {path}", flush=True)

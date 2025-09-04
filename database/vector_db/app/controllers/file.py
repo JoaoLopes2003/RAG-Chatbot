@@ -6,12 +6,24 @@ async def get_file(file_id: str) -> File | None:
     Retrieves a single file document from the database by its ID.
 
     Args:
-        file_id (str): The unique ID (_id) of the file. Corresponds to its folder + filename
+        file_id (str): The unique ID (_id) of the file.
 
     Returns:
         Optional[File]: The retrieved File object or None if not found.
     """
     return await File.get(file_id)
+
+async def get_file_by_filename(filename: str) -> File | None:
+    """
+    Retrieves a single file document from the database by its filename.
+
+    Args:
+        filename (str): The attribute filename of the file. Corresponds to its folder + filename
+
+    Returns:
+        Optional[File]: The retrieved File object or None if not found.
+    """
+    return await File.find_one(File.filename == filename)
 
 async def get_all_files() -> List[File]:
     """
