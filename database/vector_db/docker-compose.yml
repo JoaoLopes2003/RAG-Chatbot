@@ -12,6 +12,9 @@ services:
             - type: bind
               source: unprocessed_files/
               target: /unprocessed_files/
+            - type: bind
+              source: modify_files/
+              target: /modify_files/
         depends_on:
             - mongo
 volumes:

@@ -33,85 +33,112 @@ def get_heading_level(line: str) -> int:
 
 def build_tree_from_md(path: str) -> list:
     """
-    Builds an element tree from a Markdown file. Levels are defined by header level.
+    Builds an element tree from a Markdown file, including character start and end positions.
     """
     tree = []
     stack = []
-
-    # --- State variables for table parsing ---
     is_parsing_table = False
     table_accumulator = []
+    table_start_pos = 0
+    current_pos = 0
 
-    def flush_table_to_tree():
-        """Helper function to process the accumulated table and add it to the tree."""
-        nonlocal is_parsing_table, table_accumulator
-        if not table_accumulator:
-            return
+    with open(path, "r", encoding="utf-8") as f:
+        lines = f.readlines()
 
-        # Join the lines and create a single node for the entire table
+    for line in lines:
+        line_start_pos = current_pos
+        line_end_pos = line_start_pos + len(line)
+        el_type = get_md_element_type(line)
+        content = line.strip()
+
+        if el_type == MdElement.TABLE:
+            if not is_parsing_table:
+                # A new table has started
+                is_parsing_table = True
+                table_start_pos = line_start_pos
+            table_accumulator.append(content)
+        elif is_parsing_table:
+
+            is_parsing_table = False
+            table_content = "\n".join(table_accumulator)
+
+            table_end_pos = line_start_pos 
+            node = {
+                "type": MdElement.TABLE.name,
+                "content": table_content,
+                "start_pos": table_start_pos,
+                "end_pos": table_end_pos,
+            }
+            if not stack:
+                tree.append(node)
+            else:
+                stack[-1][1]["children"].append(node)
+            table_accumulator = []
+        
+        if is_parsing_table:
+            current_pos = line_end_pos
+            continue
+
+        if el_type == MdElement.BLANK:
+            current_pos = line_end_pos
+            continue
+
+        if el_type == MdElement.HEADING:
+            level = get_heading_level(content)
+            node = {
+                "type": el_type.name,
+                "level": level,
+                "content": content,
+                "start_pos": line_start_pos,
+                "children": [],
+                # end_pos will be set later
+            }
+
+            # Set the end position for parent nodes that are now being closed.
+            while stack and stack[-1][0] >= level:
+                closed_node_dict = stack.pop()[1]
+                closed_node_dict["end_pos"] = line_start_pos
+
+            if not stack:
+                tree.append(node)
+            else:
+                parent_node = stack[-1][1]
+                parent_node["children"].append(node)
+            
+            stack.append((level, node))
+
+        elif el_type in [MdElement.TEXT, MdElement.BULLET_POINTS]:
+            node = {
+                "type": el_type.name,
+                "content": content,
+                "start_pos": line_start_pos,
+                "end_pos": line_end_pos,
+            }
+            if not stack:
+                tree.append(node)
+            else:
+                current_parent = stack[-1][1]
+                current_parent["children"].append(node)
+        
+        # Update position for the next line
+        current_pos = line_end_pos
+
+    # If the file ends with a table, process it
+    if is_parsing_table:
         table_content = "\n".join(table_accumulator)
         node = {
             "type": MdElement.TABLE.name,
             "content": table_content,
+            "start_pos": table_start_pos,
+            "end_pos": current_pos,
         }
         if not stack:
             tree.append(node)
         else:
-            parent_node = stack[-1][1]
-            parent_node["children"].append(node)
+            stack[-1][1]["children"].append(node)
 
-        # Reset state
-        is_parsing_table = False
-        table_accumulator = []
-
-
-    with open(path, "r", encoding="utf-8") as f:
-        for line in f:
-            el_type = get_md_element_type(line)
-            content = line.strip()
-
-            # If the current line is part of a table
-            if el_type == MdElement.TABLE:
-                is_parsing_table = True
-                table_accumulator.append(content)
-                continue
-
-            # If we were parsing a table, but the current line is NOT a table line
-            if is_parsing_table:
-                # The table has ended. Process the accumulated lines.
-                flush_table_to_tree()
-
-            if el_type == MdElement.BLANK:
-                continue
-
-            if el_type == MdElement.HEADING:
-                level = get_heading_level(content)
-                node = {
-                    "type": el_type.name,
-                    "content": content,
-                    "children": []
-                }
-                while stack and stack[-1][0] >= level:
-                    stack.pop()
-                if not stack:
-                    tree.append(node)
-                else:
-                    parent_node = stack[-1][1]
-                    parent_node["children"].append(node)
-                stack.append((level, node))
-
-            else: # TEXT or BULLET_POINT
-                node = {
-                    "type": el_type.name,
-                    "content": content,
-                }
-                if not stack:
-                    tree.append(node)
-                else:
-                    current_parent = stack[-1][1]
-                    current_parent["children"].append(node)
-
-    # After the loop, check if the file ended with a table
-    flush_table_to_tree()
+    while stack:
+        open_node_dict = stack.pop()[1]
+        open_node_dict["end_pos"] = current_pos
 
     return tree

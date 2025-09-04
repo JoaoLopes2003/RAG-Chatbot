@@ -1,8 +1,8 @@
 from typing import List, Dict, Any
 from beanie import PydanticObjectId
-from models.chunk import Chunk
+from models.default_chunk import DefaultChunk
 
-async def get_chunk(chunk_id: PydanticObjectId) -> Chunk | None:
+async def get_chunk(chunk_id: PydanticObjectId) -> DefaultChunk | None:
     """
     Retrieves a single chunk document from the database by its ID.
 
@@ -12,9 +12,9 @@ async def get_chunk(chunk_id: PydanticObjectId) -> Chunk | None:
     Returns:
         Optional[Chunk]: The retrieved Chunk object or None if not found.
     """
-    return await Chunk.get(chunk_id)
+    return await DefaultChunk.get(chunk_id)
 
-async def get_chunk_by_vector_id(vector_id: int) -> Chunk | None:
+async def get_chunk_by_vector_id(vector_id: int) -> DefaultChunk | None:
     """
     Retrieves a single chunk associated with a specific vector ID.
 
@@ -24,9 +24,9 @@ async def get_chunk_by_vector_id(vector_id: int) -> Chunk | None:
     Returns:
         Optional[Chunk]: The Chunk object associated with the vector ID, or None if not found.
     """
-    return await Chunk.find_one(Chunk.vector_db_id == vector_id)
+    return await DefaultChunk.find_one(DefaultChunk.vector_db_id == vector_id)
 
-async def get_chunks_by_file_id(file_id: str) -> List[Chunk]:
+async def get_chunks_by_file_id(file_id: str) -> List[DefaultChunk]:
     """
     Retrieves all chunks associated with a specific file ID.
 
@@ -36,18 +36,18 @@ async def get_chunks_by_file_id(file_id: str) -> List[Chunk]:
     Returns:
         List[Chunk]: A list of Chunk objects associated with the file.
     """
-    return await Chunk.find(Chunk.file_id == file_id).to_list()
+    return await DefaultChunk.find(DefaultChunk.file_id == file_id).to_list()
 
-async def get_all_chunks() -> List[Chunk]:
+async def get_all_chunks() -> List[DefaultChunk]:
     """
     Retrieves all chunk documents from the database.
 
     Returns:
         List[Chunk]: A list of all Chunk objects.
     """
-    return await Chunk.find_all().to_list()
+    return await DefaultChunk.find_all().to_list()
 
-async def create_chunk(chunk_data: Dict[str, Any]) -> Chunk:
+async def create_chunk(chunk_data: Dict[str, Any]) -> DefaultChunk:
     """
     Creates a new chunk document and saves it to the database.
 
@@ -58,11 +58,11 @@ async def create_chunk(chunk_data: Dict[str, Any]) -> Chunk:
     Returns:
         Chunk: The newly created Chunk object.
     """
-    chunk_obj = Chunk(**chunk_data)
+    chunk_obj = DefaultChunk(**chunk_data)
     await chunk_obj.insert()
     return chunk_obj
 
-async def update_chunk(chunk_id: PydanticObjectId, update_data: Dict[str, Any]) -> Chunk | None:
+async def update_chunk(chunk_id: PydanticObjectId, update_data: Dict[str, Any]) -> DefaultChunk | None:
     """
     Updates an existing chunk document in the database.
 
@@ -73,14 +73,14 @@ async def update_chunk(chunk_id: PydanticObjectId, update_data: Dict[str, Any]) 
     Returns:
         Optional[Chunk]: The updated Chunk object or None if not found.
     """
-    chunk = await Chunk.get(chunk_id)
+    chunk = await DefaultChunk.get(chunk_id)
     if chunk:
         chunk.set(update_data)
         await chunk.save()
         return chunk
     return None
 
-async def delete_chunk(chunk_id: PydanticObjectId) -> Chunk | None:
+async def delete_chunk(chunk_id: PydanticObjectId) -> DefaultChunk | None:
     """
     Deletes a chunk document from the database.
 
@@ -90,7 +90,7 @@ async def delete_chunk(chunk_id: PydanticObjectId) -> Chunk | None:
     Returns:
         bool: True if the chunk was deleted, False otherwise.
     """
-    chunk = await Chunk.get(chunk_id)
+    chunk = await DefaultChunk.get(chunk_id)
     if chunk:
         await chunk.delete()
         return chunk

@@ -5,7 +5,8 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from beanie import init_beanie
 
 from models.file import File
-from models.chunk import Chunk
+from models.default_chunk import DefaultChunk
+from models.smart_chunk import SmartChunk
 from config.settings import settings
 from routes import vector_db
 from services.vector_db import Vector_db
@@ -20,7 +21,7 @@ async def init_database():
     database = client[settings.mongo_db_name]
     await init_beanie(
         database=database,
-        document_models=[File, Chunk]
+        document_models=[File, DefaultChunk, SmartChunk]
     )
     print(f"Successfully connected to database '{settings.mongo_db_name}'.", flush=True)
     print("Beanie initialization complete. Models are ready to use.", flush=True)

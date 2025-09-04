@@ -1,2 +1,3 @@
 UNPROCESSED_FILES_DIR = "/unprocessed_files/"
+MODIFY_FILES_DIR = "/modify_files/"
 MAX_RETRIEVED_DOCUMENTS = 10

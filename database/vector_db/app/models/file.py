@@ -1,10 +1,10 @@
 from typing import List
-from pydantic import Field
 from beanie import Document
 
 class File(Document):
-    id: str = Field(..., alias="_id") # filename (folder + filename)
-    chunks_ids: List[int] # Ids of chunks
+    filename: str # filename (folder + filename)
+    chunks_ids_default_parsing: List[str] # Ids of chunks
+    chunks_ids_smart_parsing: List[str] # Ids of chunks
     
     class Settings:
         name = "files"

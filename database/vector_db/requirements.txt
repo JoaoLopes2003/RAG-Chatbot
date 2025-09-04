@@ -7,5 +7,6 @@ pydantic-settings
 faiss-cpu
 numpy
 langchain
+langchain-community
 google-generativeai
 python-multipart
