@@ -19,11 +19,12 @@ ALLOWED_CONTENT_TYPES = [
 ]
 
 @router.get("/getfile")
-def get_file(request_data: GetFileRequest):
+def get_file(
+    folder: str,
+    filename: str,
+    converted: bool = True
+):
 
-    folder = request_data.folder
-    filename = request_data.filename
-    converted = request_data.converted
     relative_path = str(Path(folder) / filename)
     file_obj = file_manager.get_file_obj(relative_path)
 
@@ -41,7 +42,7 @@ def get_file(request_data: GetFileRequest):
 
     return FileResponse(path=file_path, filename=filename)
 
-@router.post("/uploadfile", response_model=UploadFileResponse)
+@router.post("/uploadfile", status_code=status.HTTP_201_CREATED)
 def upload_file(file: UploadFile, template_folder: str = Form("undefined")):
     
     s_template_folder, s_filename = sanitize_upload_request(file, template_folder, ALLOWED_CONTENT_TYPES)
@@ -82,17 +83,20 @@ def upload_file(file: UploadFile, template_folder: str = Form("undefined")):
 
     # Let the file manager process the file
     try:
-        file_manager.post_new_file(str(path_to_file))
+        status = file_manager.post_new_file(str(path_to_file))
+        if status == 2:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="File was uploaded but could not be processed."
+            )
     except Exception as e:
-        print(f"File '{path_to_file}' was saved but processing failed: {e}", flush=True)
+        print(f"File '{path_to_file}' already exists.", flush=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="File was uploaded but could not be processed."
         )
 
-    return UploadFileResponse(uploaded=True, error="")
-
-@router.post("/updatefile", response_model=UploadFileResponse)
+@router.post("/updatefile", status_code=status.HTTP_200_OK)
 def update_file(file: UploadFile, template_folder: str = Form("undefined")):
     
     s_template_folder, s_filename = sanitize_upload_request(file, template_folder, ALLOWED_CONTENT_TYPES)
@@ -140,8 +144,6 @@ def update_file(file: UploadFile, template_folder: str = Form("undefined")):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="File was uploaded but could not be processed."
         )
-
-    return UploadFileResponse(uploaded=True, error="")
 
 @router.post("/deletefile", status_code=status.HTTP_204_NO_CONTENT)
 def delete_file(request_data: DeleteFileRequest):

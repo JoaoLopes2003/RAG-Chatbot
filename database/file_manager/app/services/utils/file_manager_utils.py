@@ -159,46 +159,72 @@ def get_balanced_shuffled_files(files: list[FILE]) -> list[FILE]:
     
     return filenames_intercalated
 
-def create_prompt(file: FILE, examples: list[FILE], target_format: str = "Markdown") -> tuple:
-
-    # Create the system prompt
-    if examples:
-        system_prompt = f"""You are an expert at converting {file.file_extension} files to {target_format}.
-
-    I will show you example pairs where:
-    1. First, you'll see the original {file.file_extension} file (uploaded)
-    2. Then, you'll see the expected {target_format} conversion (as text)
-
-    After the example pairs, I am going to provide another file with the {file.file_extension} extension and I want you to convert it to {target_format}. Give only the conversion, and no extra commentary, formatting, or chattiness. Convert the file from {file.file_extension} format to {target_format}.
+def create_translation_and_conversion_prompt(
+    file_to_process: FILE, 
+    examples: list[FILE], 
+    target_format: str = "Markdown", 
+    source_language: str = "Romanian", 
+    target_language: str = "English"
+) -> list:
     """
+    Creates a prompt for the Gemini API to both translate a document and convert its format.
+    
+    Args:
+        file_to_process (FILE): The new file that needs to be processed.
+        examples (List[FILE]): A list of files to be used as few-shot examples.
+                               Each example file must have a corresponding .md file
+                               that contains the CORRECT English Markdown conversion.
+        target_format (str): The desired output format (e.g., "Markdown").
+        source_language (str): The source language of the text.
+        target_language (str): The language to translate the text into.
+
+    Returns:
+        list: A list of parts ready to be sent to the Gemini API.
+    """
+
+    # System Prompt
+    if examples:
+        system_prompt = f"""You are a highly skilled document processor. Your task is to perform two actions on the provided file:
+1.  First, translate all text content from {source_language} to {target_language}.
+2.  Second, convert the structure of the document into {target_format} format, preserving headings, lists, and tables.
+
+I will provide you with example pairs. In each pair, you will see an original file in {source_language} and its corresponding, final conversion into {target_language} {target_format}.
+
+After the examples, you will receive a new file. You must perform the same translation and conversion on it.
+Provide ONLY the final {target_language} {target_format} text. Do not include any extra commentary, formatting, or conversational text.
+"""
     else:
+        # Handle the zero-shot case
         return [
-                f"Convert the following {file.file_extension} file to Markdown format. ",
-                f"Give only the Markdown conversion, no extra commentary.\n",
-                f"{file.file_extension.upper()} file:\n",
-                file.gemini_obj
-            ]
+            f"Translate the following file from {source_language} to {target_language} and format the output as {target_format}. ",
+            f"Provide only the final {target_language} {target_format} text, with no extra commentary.\n",
+            f"Original file ({source_language}):\n",
+            file_to_process.gemini_obj
+        ]
     
     content_parts = [system_prompt]
 
-    # Add each example pair
+    # Add each example pair for in-context learning
     for example_file in examples:
         
-        # Read converted markdown content
         markdown_content = read_markdown_content(example_file.md_file_path)
+        if not markdown_content:
+            continue # Skip example if the target file is missing
         
-        # Add to content parts
         content_parts.extend([
-            f"Original file: ",
+            f"\n--- EXAMPLE START ---\n",
+            f"Original file ({source_language}):",
             example_file.gemini_obj,
-            f"\n{target_format}:\n{markdown_content}\n",
+            f"\nFinal Conversion ({target_language} {target_format}):\n{markdown_content}",
+            f"\n--- EXAMPLE END ---\n",
         ])
 
-    # Add to content parts
+    # --- 4. Add the final file to be processed ---
     content_parts.extend([
-        f"Original file: ",
-        file.gemini_obj,
-        f"\n{target_format}:",
+        f"\n--- NEW FILE TO PROCESS ---\n",
+        f"Original file ({source_language}):",
+        file_to_process.gemini_obj,
+        f"\nFinal Conversion ({target_language} {target_format}):",
     ])
 
     return content_parts

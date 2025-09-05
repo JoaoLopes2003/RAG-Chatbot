@@ -30,6 +30,8 @@ except KeyError:
 
 genai.configure(api_key=api_key)
 
+gemini_model = genai.GenerativeModel('gemini-1.5-flash-latest')
+
 class Vector_db():
     def __init__(self, embeddingDimension=768):
         self.embedding_dim = embeddingDimension
@@ -207,13 +209,17 @@ class Vector_db():
             self.mongo_id_to_smart_faiss_id[mongo_id] = faiss_id
             self.smart_chunks[mongo_id] = created_chunk
             smart_chunk_mongo_ids.append(mongo_id)
+        
+        summary = self._generate_summary(full_path_obj)
 
         # Store the file info in MongoDB
         new_file_data = {
             "filename": rel_path,
+            "summary": summary,
             "chunks_ids_default_parsing": default_chunk_mongo_ids,
             "chunks_ids_smart_parsing": smart_chunk_mongo_ids
         }
+        print(new_file_data, flush=True)
         # Await the async database operation
         created_file = await file_controller.create_file(new_file_data)
         self.files[rel_path] = created_file
@@ -509,3 +515,36 @@ class Vector_db():
                     break
         
         return relevant_chunks, len(relevant_chunks)
+    
+    def _generate_summary(self, file_path: str) -> str | None:
+        """
+        Uses the Gemini API to generate a concise summary for a document.
+        """
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                full_text = f.read()
+        except Exception as e:
+            print(f"Error reading file {file_path} for summary: {e}", flush=True)
+            return None
+
+        if not full_text.strip():
+            return None
+
+        prompt = (
+            "Generate a single, concise sentence that summarizes the document type, "
+            "main topic, and overall purpose of the following text. Focus on high-level "
+            "context, not specific details. Example: 'This document is a technical specification "
+            "for the Apollo-11 guidance system, detailing its hardware components and software logic.'\n\n"
+            f"TEXT: '''{full_text[:4000]}'''"
+        )
+
+        try:
+            # --- BUG FIX: Use the modern 'GenerativeModel' and 'generate_content' method ---
+            response = gemini_model.generate_content(prompt)
+            # The response object has a 'text' attribute with the generated string
+            summary = response.text.strip()
+            print(f"Generated summary: {summary}", flush=True)
+            return summary
+        except Exception as e:
+            print(f"Error generating summary: {e}", flush=True)
+            return None

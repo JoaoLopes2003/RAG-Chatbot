@@ -1,20 +1,15 @@
-# Use the official Node.js runtime as the base image
-FROM node:18-alpine
+FROM python:3.11-slim
 
-# Set the working directory inside the container
+# Set work directory
 WORKDIR /app
 
-# Copy package.json
-COPY package.json /app
+# Copy files
+COPY app/ /app
+COPY requirements.txt .
+COPY .env .
 
-# Install all dependencies
-RUN npm i
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application code
-COPY . /app
-
-# Expose port 3000
-EXPOSE 3000
-
-# Run the app in dev mode
-CMD ["npm", "run", "dev"]
+# Start FastAPI app on port 3007
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "3007"]

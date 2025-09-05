@@ -1,55 +1,70 @@
-services:
-    vector_db:
-        build: vector_db/
-        networks:
-            - backend
-    
-    backend:
-        build: backend/
-        depends_on:
-            - vector_db
-        environment:
-            - VECTOR_DB_HOST=http://vector_db:3003
-            - LLM_HOST=http://api:3002
-        networks:
-            - frontend
-            - backend
-    
-    ollama:
-        extends:
-            file: llm_app/docker-compose.yml
-            service: ollama
-        networks:
-            - llm
-    
-    api:
-        extends:
-            file: llm_app/docker-compose.yml
-            service: api
-        networks:
-            - backend
-            - llm
-    
-    frontend:
-        build: frontend/
-        ports:
-            - "3001:3001"
-        depends_on:
-            - backend
-            - api
-        environment:
-            - BACKEND_HOST=http://backend:3000
-        networks:
-            - frontend
-            - backend
-
+# This defines the shared network that all services will join.
 networks:
-    frontend:
-        driver: bridge
-    backend:
-        driver: bridge
-    llm:
-        driver: bridge
+  app-network:
+    driver: bridge
 
+# This defines a persistent volume for the MongoDB data.
 volumes:
-    ollama_data:
+  mongodb_data:
+
+services:
+  # The Orchestrator Service (your backend)
+  orchestrator:
+    build:
+      context: ./backend  # Assumes your orchestrator code is in a 'backend' subfolder
+    ports:
+      - "3007:3007" # Expose the orchestrator on port 3007
+    depends_on:
+      - file_manager
+      - vector_bd
+    networks:
+      - app-network
+
+  # Your File Database Service
+  file_manager:
+    build:
+      context: ./database/file_manager
+    ports:
+      - "3005:3005"
+    volumes:
+      - type: bind
+        source: ./database/file_manager/converted_files/
+        target: /converted_files/
+      - type: bind
+        source: ./database/file_manager/unprocessed_files/
+        target: /unprocessed_files/
+      - type: bind
+        source: ./database/file_manager/original_files/
+        target: /original_files/
+      - type: bind
+        source: ./database/file_manager/modify_files/
+        target: /modify_files/
+    networks:
+      - app-network
+
+  # Your Vector DB Service
+  vector_bd:
+    build:
+      context: ./database/vector_db
+    ports:
+      - "3006:3006"
+    volumes:
+      - type: bind
+        source: ./database/vector_db/unprocessed_files/
+        target: /unprocessed_files/
+      - type: bind
+        source: ./database/vector_db/modify_files/
+        target: /modify_files/
+    depends_on:
+      - mongo
+    networks:
+      - app-network
+
+  # The MongoDB instance for the Vector DB
+  mongo:
+    image: mongo:latest
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - app-network
+

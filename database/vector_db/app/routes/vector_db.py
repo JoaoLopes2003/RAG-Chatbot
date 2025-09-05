@@ -71,7 +71,7 @@ async def upload_file(
 
     # Let the vector database process the file
     try:
-        vector_db.process_file(path_to_file)
+        await vector_db.process_file(path_to_file)
     except Exception as e:
         print(f"File '{path_to_file}' was saved but processing failed: {e}", flush=True)
         raise HTTPException(

@@ -5,7 +5,7 @@ import google.generativeai as genai
 import time
 import shutil
 import random
-from .utils.file_manager_utils import check_missing_conversions, files_for_preload, get_balanced_shuffled_files, create_prompt
+from .utils.file_manager_utils import check_missing_conversions, files_for_preload, get_balanced_shuffled_files, create_translation_and_conversion_prompt
 from . import myconstants
 from .utils.get_files_paths import get_files_paths
 from .utils.get_mime_type import get_mime_type
@@ -387,7 +387,7 @@ class FILE_MANAGER():
         self.upload_file(file)
         
         # Create prompt
-        prompt = create_prompt(file, examples_to_use)
+        prompt = create_translation_and_conversion_prompt(file, examples_to_use)
 
         # Generate the conversion
         print("Generating conversion...", flush=True)
@@ -418,7 +418,7 @@ class FILE_MANAGER():
 
         return 1
     
-    def convert_files(self, paths_files: list[str], new_files_flag: bool = False, allow_override: bool = False):
+    def convert_files(self, paths_files: list[str], new_files_flag: bool = False, allow_override: bool = False) -> int:
 
         for path in paths_files:
             file = FILE(path, self.md_files_folder_path)
@@ -433,8 +433,10 @@ class FILE_MANAGER():
                 self.delete_single_file(path)
                 if status == 0:
                     print(f"ERROR: Could not convert the file: {file.filename}", flush=True)
+                    return 0
                 elif status == 2:
                     print(f"ERROR: That file already exists and you can't override it this way: {file.filename}", flush=True)
+                    return 2
             elif new_files_flag:
                 # Store the unprocessed file in the original_files folder
                 self.unprocessed_to_processed(file)
