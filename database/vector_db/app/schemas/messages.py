@@ -5,11 +5,19 @@ class UploadFileResponse(BaseModel):
     uploaded: bool
     error: str
 
-class GetRelevantDocumentsRequest(BaseModel):
-    query: str
-    retrieve_limit: Optional[int] = 10
-    smart_search: Optional[bool] = False
-
 class GetRelevantDocumentsResponse(BaseModel):
     docs_paths: list[str]
     number_docs: int
+
+class Chunk(BaseModel):
+    path: str
+    start_pos: int
+    end_pos: int
+
+class GetRelevantChunksResponse(BaseModel):
+    chunks: list[Chunk]
+    chunk_count: int
+
+class DeleteFileRequest(BaseModel):
+    filename: str
+    folder: Optional[str] = "undefined"

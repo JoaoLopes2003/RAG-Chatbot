@@ -154,11 +154,11 @@ class Vector_db():
             print(f"Processing file: {path}", flush=True)
 
         # Generate the default embeddings
-        default_embeddings = self._generate_embeddings_default(path)
+        default_embeddings, delimiters = self._generate_embeddings_default(path)
 
         # Add the embeddings to the vector database
         default_chunk_mongo_ids = []
-        for emb in default_embeddings:
+        for emb, delimiter in zip(default_embeddings, delimiters):
             vector = np.array([emb], dtype=np.float32)
             self.vector_db_default_embeddings.add(vector)
 
@@ -167,6 +167,8 @@ class Vector_db():
             new_chunk_data = {
                 "embedding": emb,
                 "file_id": rel_path,
+                "start_pos": delimiter[0],
+                "end_pos": delimiter[1]
             }
             # Add to the database
             created_chunk = await default_chunk_controller.create_chunk(new_chunk_data)
@@ -220,17 +222,40 @@ class Vector_db():
         # Delete file from the unprocessed files dir
         delete_single_file(path)
 
-    def _generate_embeddings_default(self, path: str) -> list[list[float]]:
-        """Produce the default embeddings using standard LangChain chunking."""
+    def _generate_embeddings_default(self, path: str) -> tuple[list[list[float]], list[tuple[int, int]]]:
+        """
+        Produce the default embeddings using standard LangChain chunking and their character offsets.
+        """
         loader = TextLoader(path, encoding="utf-8")
         documents = loader.load()
 
-        doc_chunks = self._document_to_chunks(documents)
-        string_chunks = [doc.page_content for doc in doc_chunks]
+        if not documents or not documents[0].page_content:
+            return [], []
+
+        full_text = documents[0].page_content
+        string_chunks = self._split_text_in_chunks(full_text)
 
         if not string_chunks:
-            return []
+            return [], []
 
+        # Correctly calculate the start and end position of each chunk
+        delimiters = []
+        current_pos = 0
+        for chunk in string_chunks:
+            # Find the start position of the chunk in the original text
+            start_pos = full_text.find(chunk, current_pos)
+            if start_pos == -1:
+                # This could happen with complex overlaps, try a safe fallback
+                search_from = max(0, current_pos - 50) # 50 is the overlap size
+                start_pos = full_text.find(chunk, search_from)
+                if start_pos == -1:
+                    delimiters.append((None, None))
+                    continue # Could not find this chunk, skip it.
+
+            end_pos = start_pos + len(chunk)
+            delimiters.append((start_pos, end_pos))
+            current_pos = start_pos + 1
+        
         # Generate the embeddings
         try:
             result = genai.embed_content(
@@ -238,10 +263,10 @@ class Vector_db():
                 content=string_chunks,
                 task_type="RETRIEVAL_DOCUMENT"
             )
-            return result['embedding']
+            return result['embedding'], delimiters
         except Exception as e:
             print(f"Error getting default embeddings for {path}. Error: {e}", flush=True)
-            return []
+            return [], []
 
     def _document_to_chunks(self, documents: list) -> list:
         """Splits LangChain documents into smaller chunks."""
@@ -252,22 +277,29 @@ class Vector_db():
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
         return text_splitter.split_text(text)
 
-    def _get_embeddings(self, text: str) -> list[list[float]]:
-        """Sends text to Gemini to get embeddings."""
+    def _get_embeddings(self, text: str, split_in_chunks: bool = True) -> list[list[float]]:
+        """
+        Sends text to Gemini to get embeddings.
+        Handles both chunked documents and single query strings.
+        """
         if not text.strip():
             return []
-            
-        chunks = self._split_text_in_chunks(text)
-        if not chunks:
+        
+        # If not splitting, the text itself is the content. Otherwise, chunk it.
+        content_to_embed = self._split_text_in_chunks(text) if split_in_chunks else [text]
+        
+        if not content_to_embed:
             return []
 
         try:
+            # Use RETRIEVAL_QUERY for search queries and RETRIEVAL_DOCUMENT for documents.
+            task_type = "RETRIEVAL_QUERY" if not split_in_chunks else "RETRIEVAL_DOCUMENT"
+            
             result = genai.embed_content(
                 model="models/text-embedding-004",
-                content=chunks,
-                task_type="RETRIEVAL_DOCUMENT"
+                content=content_to_embed,
+                task_type=task_type
             )
-
             return result['embedding']
         except Exception as e:
             print(f"Error getting embedding for text snippet: '{text[:50]}...'. Error: {e}", flush=True)
@@ -321,7 +353,7 @@ class Vector_db():
             
         return all_embeddings, nodes_processing_sequence
 
-    async def delete_file_from_server(self, path: str):
+    async def delete_file_from_server(self, path: str) -> bool:
         print(f"Attempting to delete file and associated data for: {path}", flush=True)
         file_to_delete = self.files.pop(path, None)
         if not file_to_delete:
@@ -329,7 +361,7 @@ class Vector_db():
             file_to_delete = await file_controller.get_file_by_filename(path)
             if not file_to_delete:
                 print(f"File not found in database: {path}. Nothing to delete.", flush=True)
-                return
+                return False
 
         # Delete Default Chunks
         for chunk_mongo_id in file_to_delete.chunks_ids_default_parsing:
@@ -354,3 +386,126 @@ class Vector_db():
         # Delete the File document itself
         await file_controller.delete_file(file_to_delete.id)
         print(f"Successfully deleted file and cleaned up associated chunks for: {path}", flush=True)
+        
+        return True
+    
+    def _retrieve_ids_from_db(self, query: str, db, retrieve_limit: int = 10):
+
+        query_embedding_list = self._get_embeddings(query, split_in_chunks=False)
+        if not query_embedding_list:
+            return [], 0
+        
+        vector = np.array([query_embedding_list[0]], dtype=np.float32)
+        
+        if db.ntotal == 0:
+            return [], 0
+        
+        # To ensure we get `retrieve_limit` unique *documents*, we search for more *chunks*.
+        # A safe heuristic is to search for a multiple of the limit, or all chunks if the total is less.
+        # This gives us a ranked list of chunks to iterate through.
+        k_to_search = min(db.ntotal, retrieve_limit * 15)
+
+        distances, faiss_ids = db.search(vector, k_to_search)
+
+        return distances, faiss_ids
+    
+    def get_relevant_docs_paths(self, query: str, retrieve_limit: int = 10, smart_chunking: bool = False) -> tuple[list[str], int]:
+        """
+        Searches for relevant documents based on a query and returns their paths.
+        """
+
+        # Select the correct database and mappings based on the search type
+        if not smart_chunking:
+            db = self.vector_db_default_embeddings
+            id_map = self.faiss_id_to_default_chunk_id
+            chunk_cache = self.default_chunks
+        else:
+            db = self.vector_db_smart_embeddings
+            id_map = self.faiss_id_to_smart_chunk_id
+            chunk_cache = self.smart_chunks
+
+        distances, faiss_ids = self._retrieve_ids_from_db(query, db, retrieve_limit)
+
+        if faiss_ids is None:
+            return [], 0
+
+        # Use a set to store unique document paths
+        relevant_paths = set()
+
+        # Iterate through the sorted chunk results until we have enough unique documents
+        for faiss_id in faiss_ids[0]:
+            if faiss_id == -1:  # FAISS returns -1 when no more results are found
+                break
+            
+            mongo_id = id_map.get(faiss_id)
+            if mongo_id:
+                chunk = chunk_cache.get(mongo_id)
+                if chunk:
+                    relevant_paths.add(chunk.file_id)
+                    # Check if we have reached the desired number of unique documents
+                    if len(relevant_paths) >= retrieve_limit:
+                        break  # Stop iterating once we have enough documents
+        
+        final_paths = list(relevant_paths)
+        return final_paths, len(final_paths)
+    
+    def get_relevant_chunks(self, query: str, retrieve_limit: int = 10, smart_chunking: bool = False) -> tuple[list[dict], int]:
+        """
+        Searches for relevant document chunks based on a query. It returns a list of
+        non-overlapping chunks, prioritizing larger chunks over smaller ones that are
+        contained within them.
+        """
+        if not smart_chunking:
+            db = self.vector_db_default_embeddings
+            id_map = self.faiss_id_to_default_chunk_id
+            chunk_cache = self.default_chunks
+        else:
+            db = self.vector_db_smart_embeddings
+            id_map = self.faiss_id_to_smart_chunk_id
+            chunk_cache = self.smart_chunks
+
+        distances, faiss_ids = self._retrieve_ids_from_db(query, db, retrieve_limit)
+
+        if faiss_ids is None:
+            return [], 0
+        
+        relevant_chunks = []
+        covered_areas = {} 
+
+        for faiss_id in faiss_ids[0]:
+            if faiss_id == -1:
+                break
+            
+            mongo_id = id_map.get(faiss_id)
+            if not mongo_id:
+                continue
+            
+            chunk = chunk_cache.get(mongo_id)
+            if not chunk or chunk.start_pos is None or chunk.end_pos is None:
+                continue
+
+            file_path = chunk.file_id
+            start_pos = chunk.start_pos
+            end_pos = chunk.end_pos
+
+            is_contained = False
+            if file_path in covered_areas:
+                for area_start, area_end in covered_areas[file_path]:
+                    if start_pos >= area_start and end_pos <= area_end:
+                        is_contained = True
+                        break
+            
+            if not is_contained:
+                relevant_chunks.append({
+                    "path": file_path,
+                    "start_pos": start_pos,
+                    "end_pos": end_pos
+                })
+                if file_path not in covered_areas:
+                    covered_areas[file_path] = []
+                covered_areas[file_path].append((start_pos, end_pos))
+
+                if len(relevant_chunks) >= retrieve_limit:
+                    break
+        
+        return relevant_chunks, len(relevant_chunks)

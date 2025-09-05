@@ -18,8 +18,8 @@ ALLOWED_CONTENT_TYPES = [
     "application/pdf"
 ]
 
-@router.get("/getFile")
-def delete_file(request_data: GetFileRequest):
+@router.get("/getfile")
+def get_file(request_data: GetFileRequest):
 
     folder = request_data.folder
     filename = request_data.filename
@@ -143,7 +143,7 @@ def update_file(file: UploadFile, template_folder: str = Form("undefined")):
 
     return UploadFileResponse(uploaded=True, error="")
 
-@router.post("/deleteFile", status_code=status.HTTP_204_NO_CONTENT)
+@router.post("/deletefile", status_code=status.HTTP_204_NO_CONTENT)
 def delete_file(request_data: DeleteFileRequest):
 
     folder = request_data.folder
