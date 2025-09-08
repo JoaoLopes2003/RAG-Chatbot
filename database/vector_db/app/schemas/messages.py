@@ -10,12 +10,15 @@ class GetRelevantDocumentsResponse(BaseModel):
     number_docs: int
 
 class Chunk(BaseModel):
-    path: str
     start_pos: int
     end_pos: int
 
-class GetRelevantChunksResponse(BaseModel):
+class FileChunks(BaseModel):
+    summary: str
     chunks: list[Chunk]
+
+class GetRelevantChunksResponse(BaseModel):
+    files_chunks: dict[str, FileChunks]
     chunk_count: int
 
 class DeleteFileRequest(BaseModel):

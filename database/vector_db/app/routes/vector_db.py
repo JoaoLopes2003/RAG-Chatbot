@@ -11,7 +11,11 @@ router = APIRouter()
 
 UNPROCESSED_FILES_DIR = Path(myconstants.UNPROCESSED_FILES_DIR)
 
-@router.get("/retrievefiles", response_model=GetRelevantDocumentsResponse)
+@router.get(
+    "/retrievefiles",
+    response_model=GetRelevantDocumentsResponse,
+    status_code=status.HTTP_200_OK
+)
 async def upload_file(
     query: str, 
     retrieve_limit: int = 10, 
@@ -79,7 +83,7 @@ async def upload_file(
             detail="File was uploaded but could not be processed."
         )
 
-@router.post("/updatefile", status_code=status.HTTP_201_CREATED)
+@router.post("/updatefile", status_code=status.HTTP_200_OK)
 async def upload_file(
     file: UploadFile,
     template_folder: str = Body("undefined"),
@@ -115,7 +119,7 @@ async def upload_file(
 
     # Let the vector database process the file
     try:
-        vector_db.process_file(path_to_file, update=True)
+        await vector_db.process_file(path_to_file, update=True)
     except Exception as e:
         print(f"File '{path_to_file}' was saved but updating failed: {e}", flush=True)
         raise HTTPException(
@@ -134,7 +138,7 @@ async def delete_file(
     relative_path = str(Path(folder) / filename)
     
     # Delete teh file from the database
-    success = vector_db.delete_file_from_server(relative_path)
+    success = await vector_db.delete_file_from_server(relative_path)
 
     if not success:
         raise HTTPException(

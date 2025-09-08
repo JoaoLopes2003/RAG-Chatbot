@@ -146,7 +146,7 @@ class Vector_db():
         full_path_obj = Path(path)
         filename = full_path_obj.name
         parent_folder = full_path_obj.parent.name
-        rel_path = f"/{parent_folder}/{filename}/"
+        rel_path = f"/{parent_folder}/{filename}"
 
         if update:
             print("Deleting the information of the previous version of the file...", flush=True)
@@ -455,7 +455,7 @@ class Vector_db():
         final_paths = list(relevant_paths)
         return final_paths, len(final_paths)
     
-    def get_relevant_chunks(self, query: str, retrieve_limit: int = 10, smart_chunking: bool = False) -> tuple[list[dict], int]:
+    def get_relevant_chunks(self, query: str, retrieve_limit: int = 10, smart_chunking: bool = False) -> tuple[dict, int]:
         """
         Searches for relevant document chunks based on a query. It returns a list of
         non-overlapping chunks, prioritizing larger chunks over smaller ones that are
@@ -475,7 +475,7 @@ class Vector_db():
         if faiss_ids is None:
             return [], 0
         
-        relevant_chunks = []
+        relevant_chunks = {}
         covered_areas = {} 
 
         for faiss_id in faiss_ids[0]:
@@ -502,11 +502,21 @@ class Vector_db():
                         break
             
             if not is_contained:
-                relevant_chunks.append({
-                    "path": file_path,
+
+                summary = self.files[file_path]["summary"]
+
+                new_relevant_chunk = {
                     "start_pos": start_pos,
                     "end_pos": end_pos
-                })
+                }
+
+                if file_path not in relevant_chunks:
+                    relevant_chunks[file_path] = {
+                        "summary": summary,
+                        "chunks": []
+                    }
+                relevant_chunks[file_path]["chunks"].append(new_relevant_chunk)
+
                 if file_path not in covered_areas:
                     covered_areas[file_path] = []
                 covered_areas[file_path].append((start_pos, end_pos))
@@ -514,7 +524,7 @@ class Vector_db():
                 if len(relevant_chunks) >= retrieve_limit:
                     break
         
-        return relevant_chunks, len(relevant_chunks)
+        return relevant_chunks, len(relevant_chunks.keys())
     
     def _generate_summary(self, file_path: str) -> str | None:
         """

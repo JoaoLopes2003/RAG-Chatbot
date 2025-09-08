@@ -12,6 +12,7 @@ from .utils.get_mime_type import get_mime_type
 from . import myconstants
 from .file import FILE
 from .utils.manage_genai_storage import cleanup_all_files, cleanup_file
+from collections import defaultdict
 
 load_dotenv()
 try:
@@ -545,3 +546,100 @@ class FILE_MANAGER():
         filename = path.name
 
         return self.files.get(folder, {}).get(filename)
+
+    # Get all the filenames and corresponding folders stored
+    def get_all_files(self) -> dict[str, list[str]]:
+
+        folder_to_files = {}
+        for folder, files in self.files.items():
+            folder_to_files[folder] = files.keys()
+        return folder_to_files
+    
+    # Get the contents of specific files
+    def get_files_contents(self, paths: list[str]) -> dict[str, str]:
+        """
+        Reads and returns the text content of multiple Markdown files.
+        It appends a '.md' extension to the provided file path.
+
+        Args:
+            paths (list[str]): A list of relative file paths to read. 
+                            A '.md' extension will be appended to each path.
+
+        Returns:
+            dict[str, str]: A dictionary mapping each original path to its string content.
+        """
+        contents = {}
+        base_path = Path(self.md_files_folder_path)
+
+        for path_str in paths:
+            try:
+                rel_path = path_str.lstrip('/')
+                full_path = base_path / rel_path
+                
+                with open(full_path, "r", encoding="utf-8") as f:
+                    content = f.read()
+                
+                if content:
+                    contents[path_str] = content
+
+            except FileNotFoundError:
+                print(f"Warning: File not found when trying to read content: {full_path}", flush=True)
+                contents[path_str] = None 
+            except Exception as e:
+                print(f"Error reading file {full_path}: {e}", flush=True)
+                contents[path_str] = None
+                
+        return contents
+    
+    def get_chunks_contents(self, chunks: list) -> dict[str, list[str]]:
+        """
+        Retrieves the content of specific chunks from multiple files, ensuring
+        the chunks for each file are sorted by their appearance in the document.
+
+        Args:
+            chunks (list): A list of chunk objects/dicts, where each has 'path', 
+                           'start_pos', and 'end_pos' attributes.
+
+        Returns:
+            dict[str, list[str]]: A dictionary mapping each file path to a 
+                                   sorted list of its requested chunk contents.
+        """
+        base_path = Path(self.md_files_folder_path)
+        
+        # Group chunks by their file path for efficient reading
+        chunks_by_file = defaultdict(list)
+        for chunk in chunks:
+            path = chunk.path
+            start_pos = chunk.start_pos
+            end_pos = chunk.end_pos
+
+            if all((path is not None, start_pos is not None, end_pos is not None)):
+                chunks_by_file[path].append((start_pos, end_pos))
+
+        # Iterate through files, read each once, and extract all its chunks
+        final_contents = defaultdict(list)
+        for path_str, positions in chunks_by_file.items():
+            try:
+                # Append '.md' to the original path string
+                path_with_md_ext = path_str + ".md"
+                full_path = base_path / path_with_md_ext
+                
+                with open(full_path, "r", encoding="utf-8") as f:
+                    full_content = f.read()
+
+                # Sort the positions by their start_pos (the first element of the tuple)
+                sorted_positions = sorted(positions, key=lambda pos: pos[0])
+
+                # Iterate through the sorted positions to extract content in the correct order
+                for start, end in sorted_positions:
+                    chunk_content = full_content[start:end]
+                    final_contents[path_str].append(chunk_content)
+
+            except FileNotFoundError:
+                print(f"Warning: File not found when reading content: {full_path}", flush=True)
+                final_contents[path_str] = [None] * len(positions)
+            except Exception as e:
+                print(f"Error reading file {full_path}: {e}", flush=True)
+                final_contents[path_str] = [None] * len(positions)
+                
+        return dict(final_contents)

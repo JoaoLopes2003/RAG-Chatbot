@@ -4,7 +4,7 @@ from fastapi import APIRouter, UploadFile, HTTPException, status, Form
 from fastapi.responses import FileResponse
 from pathlib import Path
 from services.file_manager import FILE_MANAGER
-from schemas.messages import UploadFileResponse, DeleteFileRequest, GetFileRequest
+from schemas.messages import DeleteFileRequest, GetAllFilesResponse, GetFilesContentsResponse, GetChunksContentsResponse, GetFilesContentsRequest, GetChunksContentsRequest
 from services import myconstants
 from services.utils.sanitize_filename import secure_filename, sanitize_upload_request
 
@@ -172,3 +172,43 @@ def delete_file(request_data: DeleteFileRequest):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"An error occurred during file deletion: {e}"
         )
+
+@router.get(
+    "/getallfiles",
+    status_code=status.HTTP_200_OK,
+    response_model=GetAllFilesResponse
+)
+def get_all_files():
+
+    all_files = file_manager.get_all_files()
+
+    return GetAllFilesResponse(filenames=all_files)
+
+@router.post(
+    "/getfilescontents",
+    status_code=status.HTTP_200_OK,
+    response_model=GetFilesContentsResponse
+)
+def get_files_contents(
+    request: GetFilesContentsRequest
+):
+    
+    paths = request.files
+
+    contents = file_manager.get_files_contents(paths)
+
+    return GetFilesContentsResponse(documents=contents)
+
+@router.post(
+    "/getchunkscontents",
+    status_code=status.HTTP_200_OK,
+    response_model=GetChunksContentsResponse
+)
+def get_chunks_contents(
+    request: GetChunksContentsRequest
+):
+    chunks = request.chunks
+
+    contents = file_manager.get_chunks_contents(chunks)
+
+    return GetChunksContentsResponse(documents=contents)
