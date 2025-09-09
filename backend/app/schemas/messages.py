@@ -3,9 +3,9 @@ from typing import Optional
 
 class AnswerPromptRequest(BaseModel):
     prompt: str
-    retrieve_limit: Optional[int] = 10
-    smart_chunking: Optional[bool] = False
-    retrieve_only_chunks: Optional[bool] = False
+    retrieve_limit: Optional[int] = 30
+    smart_chunking: Optional[bool] = True
+    retrieve_only_chunks: Optional[bool] = True
 
 class AnswerPromptResponse(BaseModel):
     answer: str

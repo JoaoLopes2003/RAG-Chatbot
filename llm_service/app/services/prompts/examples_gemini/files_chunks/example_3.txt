@@ -1,0 +1,33 @@
+Document: 1
+Document Name: /folder/20. PAINEA LUI STEFAN neagra LA TAVA FELIATA 500G.pdf.md
+Document Summary: Product information sheet for Ștefan's Black Bread, a specialty from Iași made with sourdough, detailing its benefits and ingredients.
+Document Chunks:
+Chunk: 1
+Chunk Content:
+## Product description
+Ștefan's Bread is a specialty from Iași, created using the traditional method, with sourdough.
+Chunk: 2
+Chunk Content:
+## Product benefits
+Benefits of consuming sourdough bread:
+- Sourdough leads to slower fermentation, the metabolism of the microorganisms involved not being forced in any way, and the biochemical processes take place naturally; thus, the resulting bread will be easier to digest.
+- Notable benefits also exist for diabetics or for people who want to maintain a balanced weight, as sourdough has a low glycemic index.
+- Sourdough contains probiotics (lactobacillus), vital elements for the digestive system.
+- Sourdough contains a multitude of vitamins: B1-B6, B12, E, magnesium, potassium, calcium, phosphorus, zinc...
+- Ștefan's sourdough Bread keeps its qualities longer than bread prepared exclusively with baker's yeast, qualities beneficial for a healthy and savory meal.
+-------------
+Query: What are the benefits of Ștefan's Bread and what makes it special?
+Answer:
+{
+  "answer": "### Benefits of Ștefan's Black Bread\n**Ștefan's Black Bread** is a specialty from Iași made using a traditional sourdough method. This provides several key benefits:\n- **Digestibility:** The natural, slower fermentation of sourdough makes the bread easier to digest.\n- **Low Glycemic Index:** It is a good option for diabetics and those managing their weight due to its low glycemic index.\n- **Probiotics:** Sourdough contains beneficial probiotics, like lactobacillus, which are vital for a healthy digestive system.\n- **Rich in Nutrients:** It is a source of multiple vitamins and minerals, including:\n    - Vitamins B1-B6 and B12\n    - Vitamin E\n    - Magnesium, Potassium, and Calcium\n- **Longer Shelf Life:** The bread naturally keeps its qualities for longer compared to breads made only with baker's yeast.",
+  "sources": [
+    {
+      "document_name": "/folder/20. PAINEA LUI STEFAN neagra LA TAVA FELIATA 500G.pdf.md",
+      "quote": "## Product description\nȘtefan's Bread is a specialty from Iași, created using the traditional method, with sourdough."
+    },
+    {
+      "document_name": "/folder/20. PAINEA LUI STEFAN neagra LA TAVA FELIATA 500G.pdf.md",
+      "quote": "## Product benefits\nBenefits of consuming sourdough bread:\n- Sourdough leads to slower fermentation, the metabolism of the microorganisms involved not being forced in any way, and the biochemical processes take place naturally; thus, the resulting bread will be easier to digest.\n- Notable benefits also exist for diabetics or for people who want to maintain a balanced weight, as sourdough has a low glycemic index.\n- Sourdough contains probiotics (lactobacillus), vital elements for the digestive system.\n- Sourdough contains a multitude of vitamins: B1-B6, B12, E, magnesium, potassium, calcium, phosphorus, zinc...\n- Ștefan's sourdough Bread keeps its qualities longer than bread prepared exclusively with baker's yeast, qualities beneficial for a healthy and savory meal."
+    }
+  ]
+}

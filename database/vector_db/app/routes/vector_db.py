@@ -16,7 +16,7 @@ UNPROCESSED_FILES_DIR = Path(myconstants.UNPROCESSED_FILES_DIR)
     response_model=GetRelevantDocumentsResponse,
     status_code=status.HTTP_200_OK
 )
-async def upload_file(
+async def retrieve_files(
     query: str, 
     retrieve_limit: int = 10, 
     smart_chunking: bool = False,
@@ -28,7 +28,7 @@ async def upload_file(
     return GetRelevantDocumentsResponse(docs_paths=docs, number_docs=doc_count)
 
 @router.get("/retrievechunks", response_model=GetRelevantChunksResponse)
-async def upload_file(
+async def retrieve_chunks(
     query: str, 
     retrieve_limit: int = 10, 
     smart_chunking: bool = False,

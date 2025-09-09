@@ -45,11 +45,9 @@ Document Chunks:
         for chunk in chunks:
             
             prompt += f"""\
-[...]
 Chunk: {chunk_index}
 Chunk Content:
 {chunk}
-[...]
 """
             
             chunk_index += 1

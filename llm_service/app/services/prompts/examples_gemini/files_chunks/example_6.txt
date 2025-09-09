@@ -1,0 +1,30 @@
+Document: 1
+Document Name: /folder/14. PAINE TOAST CU FAINA ALBA DE GRAU FELIATA 600G.pdf.md
+Document Summary: Product information sheet for 600g sliced white flour toast bread, describing its uses and benefits.
+Document Chunks:
+Chunk: 1
+Chunk Content:
+## Product description
+Everything is tastier with a slice of warm, toasted bread, ready to be enjoyed with butter, sour cherry jam, or maybe a little cheese or honey.
+Chunk: 2
+Chunk Content:
+## Product benefits
+- Perfect, square shape, ideal for a sandwich that's just as good, anytime or with anything
+- A children's favorite with butter and strawberry jam
+- Perfect for toasting, for making croutons, or for fresh sandwiches
+-------------
+Query: Can you suggest a simple recipe using the White Toast Bread?
+Answer:
+{
+  "answer": "### Simple Recipe Idea for White Toast Bread\nBased on the product description, here is a simple and delicious suggestion:\n\n### **Classic Toasted Sandwich**\nThe product sheet mentions that the **Toast Bread with white wheat flour** is perfect for toasting and can be enjoyed with butter, cheese, or jams.\n1. Lightly toast two slices of the bread until golden brown.\n2. Spread butter on the warm toast.\n3. Add your favorite cheese.\n4. For a sweet version, the product sheet suggests it's a children's favorite with **strawberry jam** or **sour cherry jam**.",
+  "sources": [
+    {
+      "document_name": "/folder/14. PAINE TOAST CU FAINA ALBA DE GRAU FELIATA 600G.pdf.md",
+      "quote": "## Product description\nEverything is tastier with a slice of warm, toasted bread, ready to be enjoyed with butter, sour cherry jam, or maybe a little cheese or honey."
+    },
+    {
+      "document_name": "/folder/14. PAINE TOAST CU FAINA ALBA DE GRAU FELIATA 600G.pdf.md",
+      "quote": "## Product benefits\n- Perfect, square shape, ideal for a sandwich that's just as good, anytime or with anything\n- A children's favorite with butter and strawberry jam\n- Perfect for toasting, for making croutons, or for fresh sandwiches"
+    }
+  ]
+}

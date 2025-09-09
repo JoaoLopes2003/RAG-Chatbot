@@ -1,0 +1,34 @@
+Document: 1
+Document Name: /folder/32. COLAC 300G.pdf.md
+Document Summary: Product information sheet for Colac 300g, providing the product weight and detailed nutritional values per 100g.
+Document Chunks:
+Chunk: 1
+Chunk Content:
+## Weight
+fresh product – 300g
+Chunk: 2
+Chunk Content:
+## Nutritional values
+Energy and nutritional value per 100g
+
+| Average energy and nutritional values | %RI* per 100g |
+|-----------------------------------------|-------------------|
+| Energy value                            | 274 kcal/1162kj   |
+| Carbohydrates                           | 55.4 g            |
+| Proteins                                | 10.8 g            |
+-------------
+Query: How many calories and how much protein would I consume if I ate an entire Colac 300g?
+Answer:
+{
+  "answer": "### Nutritional Information for Colac 300g\nBased on the nutritional values provided per 100g, consuming an entire **300g Colac** would result in the following intake:\n- **Total Calories:** Approximately **822 kcal** (274 kcal per 100g * 3)\n- **Total Protein:** Approximately **32.4 g** (10.8 g per 100g * 3)",
+  "sources": [
+    {
+      "document_name": "/folder/32. COLAC 300G.pdf.md",
+      "quote": "## Weight\nfresh product – 300g"
+    },
+    {
+      "document_name": "/folder/32. COLAC 300G.pdf.md",
+      "quote": "## Nutritional values\nEnergy and nutritional value per 100g\n\n| Average energy and nutritional values | %RI* per 100g |\n|-----------------------------------------|-------------------|\n| Energy value                            | 274 kcal/1162kj   |\n| Carbohydrates                           | 55.4 g            |\n| Proteins                                | 10.8 g            |"
+    }
+  ]
+}

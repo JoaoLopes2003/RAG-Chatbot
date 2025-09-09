@@ -63,7 +63,6 @@ async def answer_prompt(request: AnswerPromptRequest):
 
             # Parse the JSON
             vector_db_data = response_vector_db.json()
-            print(vector_db_data, flush=True)
             print("Step 1: Success.", flush=True)
 
 
@@ -112,8 +111,7 @@ async def answer_prompt(request: AnswerPromptRequest):
                 final_prompt = build_prompt_from_files(request.prompt, file_contents_data["documents"])
             else:
                 final_prompt = build_prompt_from_chunks(request.prompt, file_contents_data["documents"], retrieved_chunks.files_chunks)
-
-            llm_payload = {'prompt': final_prompt}
+            llm_payload = {'prompt': final_prompt, "chunking": retrieve_only_chunks}
             
             response_llm = await client.post(
                 f"{LLM_ENTRYPOINT}/answerprompt",

@@ -10,8 +10,9 @@ def get_llm_response(prompt_req: PromptRequest):
     prompt = prompt_req.prompt
     model = prompt_req.model
     temperature = prompt_req.temperature
+    chunking = prompt_req.chunking
 
-    answer_json = generate_response(model=model, prompt_with_docs=prompt, temperature=temperature)
+    answer_json = generate_response(model=model, prompt_with_docs=prompt, temperature=temperature, chunking=chunking)
 
     answer = answer_json["answer"]
     sources = answer_json["sources"]

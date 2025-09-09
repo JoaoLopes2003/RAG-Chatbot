@@ -1,0 +1,57 @@
+Document: 1
+Document Name: /folder/15.PAINE TOAST CU FAINA INTEGRALA DE GRAU FELIATA 600G.pdf.md
+Document Summary: Product information for 600g sliced whole wheat toast bread, including its description and nutritional values.
+Document Chunks:
+Chunk: 1
+Chunk Content:
+## Product description
+The Benefica Whole Wheat Toast Bread is perfect for consumers interested in healthy nutrition, the benefits of fiber, and also their figure.
+Chunk: 2
+Chunk Content:
+## Nutritional values
+| Average energy and nutritional values | Value |
+|-----------------------------------------|--------|
+| Carbohydrates                           | 41 g   |
+| Proteins                                | 10.5 g |
+| Fiber                                   | 1.1 g  |
+-------------
+Document: 2
+Document Name: /folder/16. PAINE TOAST CU FAINA DE SECARA FELIATA 600G.pdf.md
+Document Summary: Product information for 600g sliced rye toast bread, including its description and nutritional values.
+Document Chunks:
+Chunk: 1
+Chunk Content:
+## Product description
+Benefica Rye Toast Bread comes with many benefits for the digestive system. Consuming rye bread is ideal for preventing obesity because the fiber in rye provides a feeling of fullness and satiety for a longer duration.
+Chunk: 2
+Chunk Content:
+## Nutritional values
+| Average energy and nutritional values | Value |
+|---|---|
+| Carbohydrates | 46 g |
+| Proteins | 8.5 g |
+| Fiber | 0.9 g |
+-------------
+Query: Which toast is better for my diet, the whole wheat or the rye?
+Answer:
+{
+  "answer": "### Toast Bread Comparison for Diet\nBased on the nutritional information per 100g, here is a comparison to help you choose:\n- **Toast Bread with whole wheat flour** is described as being for consumers interested in **healthy nutrition and their figure**. It has fewer carbohydrates (**41 g**) and more protein (**10.5 g**). It also has a higher fiber content listed (**1.1 g**).\n- **Rye Toast Bread** is described as being ideal for **preventing obesity** due to the feeling of fullness it provides. It has slightly more carbohydrates (**46 g**) and less protein (**8.5 g**).\n\nBoth are presented as healthy options, but the **Whole Wheat Toast** has a slight edge based on the provided numbers for protein and fiber.",
+  "sources": [
+    {
+      "document_name": "/folder/15.PAINE TOAST CU FAINA INTEGRALA DE GRAU FELIATA 600G.pdf.md",
+      "quote": "## Product description\nThe Benefica Whole Wheat Toast Bread is perfect for consumers interested in healthy nutrition, the benefits of fiber, and also their figure."
+    },
+    {
+        "document_name": "/folder/15.PAINE TOAST CU FAINA INTEGRALA DE GRAU FELIATA 600G.pdf.md",
+        "quote": "## Nutritional values\n| Average energy and nutritional values | Value |\n|-----------------------------------------|--------|\n| Carbohydrates | 41 g |\n| Proteins | 10.5 g |\n| Fiber | 1.1 g |"
+    },
+    {
+      "document_name": "/folder/16. PAINE TOAST CU FAINA DE SECARA FELIATA 600G.pdf.md",
+      "quote": "## Product description\nBenefica Rye Toast Bread comes with many benefits for the digestive system. Consuming rye bread is ideal for preventing obesity because the fiber in rye provides a feeling of fullness and satiety for a longer duration."
+    },
+    {
+        "document_name": "/folder/16. PAINE TOAST CU FAINA DE SECARA FELIATA 600G.pdf.md",
+        "quote": "## Nutritional values\n| Average energy and nutritional values | Value |\n|---|---|\n| Carbohydrates | 46 g |\n| Proteins | 8.5 g |\n| Fiber | 0.9 g |"
+    }
+  ]
+}
