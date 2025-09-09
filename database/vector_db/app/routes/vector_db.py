@@ -36,8 +36,8 @@ async def upload_file(
 ):
 
     chunks, chunk_count = vector_db.get_relevant_chunks(query, retrieve_limit, smart_chunking)
-
-    return GetRelevantChunksResponse(chunks=chunks, chunk_count=chunk_count)
+    
+    return GetRelevantChunksResponse(files_chunks=chunks, chunk_count=chunk_count)
 
 @router.post("/uploadfile", status_code=status.HTTP_201_CREATED)
 async def upload_file(

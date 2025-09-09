@@ -1,0 +1,52 @@
+Document: 1
+Document Name: /folder/10. SECARA SPECIALA FELIATA 500G.pdf.md
+Document Content:
+# Special Rye, sliced – 500g
+
+## Product description
+Put the Special Rye Bread on the table, a filling bread but above all, a healthy one. Rye and whole grains are a rich source of magnesium, a mineral that acts on the body, restoring an optimal level of energy...
+
+## Product benefits
+- Low in calories and rich in fiber, the Special Rye Bread is a staple in the diet of people who want to lose weight.
+
+## Nutritional values
+| Average energy and nutritional values | Value |
+|-----------------------------------------|-----------------|
+| Proteins                                | 14.8 g          |
+-------------
+Document: 2
+Document Name: /folder/12. FELIUTA CU SEMINTE AMBALATA 400G.pdf.md
+Document Content:
+# The Little Slice with Seeds, packaged – 400g
+
+## Product description
+Bread with a dense crumb, full of nutritious and filling seeds... The Little Slice with seeds is rich in fiber, being recommended in various diets, for children, but also for culinary delight enthusiasts.
+
+## Nutritional values
+| Average energy and nutritional values | Value |
+|-----------------------------------------|-----------------|
+| Proteins                                | 13.9 g          |
+-------------
+Query: What bread do you think I should eat before going to the gym?
+Answer:
+{
+  "answer": "### Pre-Workout Bread Recommendations\nWhile I can't give specific health advice, I can suggest products based on their descriptions for an active lifestyle.\n\nBased on the documents, two good options could be:\n- **Special Rye, sliced – 500g:** This bread is described as a healthy choice that helps restore an **optimal level of energy** due to its magnesium content. It is also very high in protein (**14.8 g** per 100g).\n- **The Little Slice with Seeds, packaged – 400g:** This bread is described as being **full of nutritious seeds** and rich in fiber. It also has a high protein content (**13.9 g** per 100g).",
+  "sources": [
+    {
+      "document_name": "/folder/10. SECARA SPECIALA FELIATA 500G.pdf.md",
+      "quote": "Rye and whole grains are a rich source of magnesium, a mineral that acts on the body, restoring an optimal level of energy..."
+    },
+    {
+      "document_name": "/folder/10. SECARA SPECIALA FELIATA 500G.pdf.md",
+      "quote": "| Proteins | 14.8 g |"
+    },
+    {
+      "document_name": "/folder/12. FELIUTA CU SEMINTE AMBALATA 400G.pdf.md",
+      "quote": "Bread with a dense crumb, full of nutritious and filling seeds..."
+    },
+    {
+      "document_name": "/folder/12. FELIUTA CU SEMINTE AMBALATA 400G.pdf.md",
+      "quote": "| Proteins | 13.9 g |"
+    }
+  ]
+}

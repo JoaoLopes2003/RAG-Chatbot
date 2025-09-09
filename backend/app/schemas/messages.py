@@ -9,6 +9,7 @@ class AnswerPromptRequest(BaseModel):
 
 class AnswerPromptResponse(BaseModel):
     answer: str
+    sources: list[dict[str, str]]
 
 class DeleteFileRequest(BaseModel):
     filename: str

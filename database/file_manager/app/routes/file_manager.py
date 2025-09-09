@@ -210,5 +210,5 @@ def get_chunks_contents(
     chunks = request.chunks
 
     contents = file_manager.get_chunks_contents(chunks)
-
+    
     return GetChunksContentsResponse(documents=contents)

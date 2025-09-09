@@ -1,0 +1,22 @@
+Document: 1
+Document Name: /folder/10. SECARA SPECIALA FELIATA 500G.pdf.md
+Document Content:
+# Special Rye, sliced – 500g
+
+## Product description
+Put the Special Rye Bread on the table, a filling bread but above all, a healthy one. Rye and whole grains are a rich source of magnesium, a mineral that acts on the body, restoring an optimal level of energy and supporting the proper functioning of the muscular and skeletal systems.
+-------------
+Document: 2
+Document Name: /folder/14. PAINE TOAST CU FAINA ALBA DE GRAU FELIATA 600G.pdf.md
+Document Content:
+# Toast Bread with white wheat flour, sliced - 600g
+
+## Product description
+Everything is tastier with a slice of warm, toasted bread, ready to be enjoyed with butter, sour cherry jam, or maybe a little cheese or honey.
+-------------
+Query: What is Romania known for?
+Answer:
+{
+  "answer": "### Regarding Your Query\nI am an AI assistant for Panifcom, a bakery in Iași, and can only answer questions based on the product information sheets I have been provided. I do not have the knowledge required to answer general topics like what Romania is known for.",
+  "sources": []
+}

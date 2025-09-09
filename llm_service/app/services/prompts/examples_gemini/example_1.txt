@@ -1,0 +1,43 @@
+Document: 1
+Document Name: /folder/21.TURTA CU MASLINE 5x160G.pdf.md
+Document Content:
+# Olive Flatbread 5*160g
+
+## Product name
+Olive Flatbread 5*160g
+
+## Ingredients
+**INGREDIENTS:** Type 650 white wheat flour (70%), water, olives (black, green in varying proportions) 10%, non-hydrogenated palm and sunflower oil in varying proportions, yeast, sugar, iodized salt, enzymes.
+
+## Allergens
+Gluten. The product may contain traces of sesame, soy, nuts
+-------------
+Document: 2
+Document Name: /folder/30.CHIFLA BURGER 90G.pdf.md
+Document Content:
+# Burger Bun - 90g
+
+## Product name
+Burger Bun - 90g
+
+## Ingredients
+**INGREDIENTS:** Type 480 white wheat flour, water, sugar, vegetable oils and fats from palm, sunflower, and rapeseed, sesame seeds, powdered milk, yeast, iodized salt, wheat gluten, dextrose, ascorbic acid, enzyme mix, colorants (annatto 0.01%).
+
+## Allergens
+Gluten, milk, sesame. The product may contain soy, nuts.
+-------------
+Query: Do your products contain nuts or milk?
+Answer:
+{
+  "answer": "### Allergen Information\nBased on the product sheets provided, here is the allergen information for the products mentioned:\n- **Olive Flatbread:** This product contains **Gluten**. It may also contain traces of sesame, soy, and **nuts**. It does not list milk as an ingredient.\n- **Burger Bun:** This product contains **Gluten**, **milk**, and **sesame**. It may also contain traces of soy and **nuts**.",
+  "sources": [
+    {
+      "document_name": "/folder/21.TURTA CU MASLINE 5x160G.pdf.md",
+      "quote": "Allergens\nGluten. The product may contain traces of sesame, soy, nuts"
+    },
+    {
+      "document_name": "/folder/30.CHIFLA BURGER 90G.pdf.md",
+      "quote": "Allergens\nGluten, milk, sesame. The product may contain soy, nuts."
+    }
+  ]
+}

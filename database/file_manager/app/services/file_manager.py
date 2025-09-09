@@ -621,8 +621,8 @@ class FILE_MANAGER():
         for path_str, positions in chunks_by_file.items():
             try:
                 # Append '.md' to the original path string
-                path_with_md_ext = path_str + ".md"
-                full_path = base_path / path_with_md_ext
+                rel_path = path_str.lstrip('/')
+                full_path = base_path / rel_path
                 
                 with open(full_path, "r", encoding="utf-8") as f:
                     full_content = f.read()

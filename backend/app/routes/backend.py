@@ -63,6 +63,7 @@ async def answer_prompt(request: AnswerPromptRequest):
 
             # Parse the JSON
             vector_db_data = response_vector_db.json()
+            print(vector_db_data, flush=True)
             print("Step 1: Success.", flush=True)
 
 
@@ -111,26 +112,27 @@ async def answer_prompt(request: AnswerPromptRequest):
                 final_prompt = build_prompt_from_files(request.prompt, file_contents_data["documents"])
             else:
                 final_prompt = build_prompt_from_chunks(request.prompt, file_contents_data["documents"], retrieved_chunks.files_chunks)
-            
-            return AnswerPromptResponse(answer=final_prompt)
 
-            # llm_payload = {'prompt': final_prompt}
+            llm_payload = {'prompt': final_prompt}
             
-            # response_llm = await client.post(
-            #     f"{LLM_ENTRYPOINT}/answerprompt",
-            #     json=llm_payload
-            # )
+            response_llm = await client.post(
+                f"{LLM_ENTRYPOINT}/answerprompt",
+                json=llm_payload
+            )
             
-            # if response_llm.status_code != status.HTTP_200_OK:
-            #     raise HTTPException(
-            #         status_code=response_llm.status_code,
-            #         detail=f"Failed to get answer from LLM Service: {response_llm.text}"
-            #     )
+            if response_llm.status_code != status.HTTP_200_OK:
+                raise HTTPException(
+                    status_code=response_llm.status_code,
+                    detail=f"Failed to get answer from LLM Service: {response_llm.text}"
+                )
 
-            # llm_data = response_llm.json()
-            # print("Step 3: Success.", flush=True)
+            llm_data = response_llm.json()
+            print("Step 3: Success.", flush=True)
+
+            answer = llm_data["answer"]
+            sources = llm_data["sources"]
             
-            # return AnswerPromptResponse(answer=llm_data.get("answer"))
+            return AnswerPromptResponse(answer=answer, sources=sources)
 
     except httpx.RequestError as e:
         raise HTTPException(

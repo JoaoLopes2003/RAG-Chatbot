@@ -503,7 +503,7 @@ class Vector_db():
             
             if not is_contained:
 
-                summary = self.files[file_path]["summary"]
+                summary = self.files[file_path].summary
 
                 new_relevant_chunk = {
                     "start_pos": start_pos,

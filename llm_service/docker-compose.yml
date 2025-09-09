@@ -1,0 +1,5 @@
+services:
+  llm_service:
+    build: .
+    ports:
+      - "3002:3002"
