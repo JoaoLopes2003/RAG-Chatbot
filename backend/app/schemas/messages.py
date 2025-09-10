@@ -6,6 +6,7 @@ class AnswerPromptRequest(BaseModel):
     retrieve_limit: Optional[int] = 30
     smart_chunking: Optional[bool] = True
     retrieve_only_chunks: Optional[bool] = True
+    source_files: Optional[list[str]] = None
 
 class AnswerPromptResponse(BaseModel):
     answer: str
@@ -36,3 +37,6 @@ class GetRelevantDocumentsContents(BaseModel):
 
 class GetPromptAnswerLLMAnswer(BaseModel):
     answer: str
+
+class GetAllFilesResponse(BaseModel):
+    filenames: dict[str, list[str]]

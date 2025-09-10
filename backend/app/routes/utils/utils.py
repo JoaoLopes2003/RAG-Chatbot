@@ -65,3 +65,11 @@ Answer:
 """
     
     return prompt
+
+def sanitize_filename(filename: str) -> tuple[str, str]:
+
+    p = Path(filename)
+    name = p.name
+    folder = p.parent.name
+
+    return folder, filename

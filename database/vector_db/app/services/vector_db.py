@@ -72,7 +72,7 @@ class Vector_db():
         """
         print("Loading data from database and rebuilding FAISS indexes...", flush=True)
         files_from_db = await file_controller.get_all_files()
-        self.files = {f.filename: f for f in files_from_db}
+        self.files = {f.filename: f.dict() for f in files_from_db}
 
         # Default chunks
         default_chunks_from_db = await default_chunk_controller.get_all_chunks()
@@ -88,7 +88,7 @@ class Vector_db():
             for i, chunk in enumerate(sorted_chunks):
                 self.faiss_id_to_default_chunk_id[i] = str(chunk.id)
                 self.mongo_id_to_default_faiss_id[str(chunk.id)] = i
-                self.default_chunks[str(chunk.id)] = chunk
+                self.default_chunks[str(chunk.id)] = chunk.dict()
 
         # Smart chunks
         smart_chunks_from_db = await smart_chunk_controller.get_all_chunks()
@@ -100,7 +100,7 @@ class Vector_db():
             for i, chunk in enumerate(sorted_chunks):
                 self.faiss_id_to_smart_chunk_id[i] = str(chunk.id)
                 self.mongo_id_to_smart_faiss_id[str(chunk.id)] = i
-                self.smart_chunks[str(chunk.id)] = chunk
+                self.smart_chunks[str(chunk.id)] = chunk.dict()
         
         print(f"Loaded {len(self.files)} files. Rebuilt FAISS indexes: {self.vector_db_default_embeddings.ntotal} default chunks, {self.vector_db_smart_embeddings.ntotal} smart chunks.", flush=True)
 
@@ -146,7 +146,7 @@ class Vector_db():
         full_path_obj = Path(path)
         filename = full_path_obj.name
         parent_folder = full_path_obj.parent.name
-        rel_path = f"/{parent_folder}/{filename}"
+        rel_path = f"{parent_folder}/{filename}"
 
         if update:
             print("Deleting the information of the previous version of the file...", flush=True)
@@ -179,7 +179,7 @@ class Vector_db():
             # Update mappings and caches
             self.faiss_id_to_default_chunk_id[faiss_id] = mongo_id
             self.faiss_id_to_default_chunk_id[mongo_id] = faiss_id
-            self.default_chunks[mongo_id] = created_chunk
+            self.default_chunks[mongo_id] = new_chunk_data
             default_chunk_mongo_ids.append(mongo_id)
 
         # Produce the smart embeddings
@@ -207,7 +207,7 @@ class Vector_db():
             # Update mappings and caches
             self.faiss_id_to_smart_chunk_id[faiss_id] = mongo_id
             self.mongo_id_to_smart_faiss_id[mongo_id] = faiss_id
-            self.smart_chunks[mongo_id] = created_chunk
+            self.smart_chunks[mongo_id] = new_chunk_data
             smart_chunk_mongo_ids.append(mongo_id)
         
         summary = self._generate_summary(full_path_obj)
@@ -219,10 +219,9 @@ class Vector_db():
             "chunks_ids_default_parsing": default_chunk_mongo_ids,
             "chunks_ids_smart_parsing": smart_chunk_mongo_ids
         }
-        print(new_file_data, flush=True)
         # Await the async database operation
         created_file = await file_controller.create_file(new_file_data)
-        self.files[rel_path] = created_file
+        self.files[rel_path] = new_file_data
         print(f"Finished processing {path}. Added {len(smart_embeddings)} smart chunks and {len(default_embeddings)} default chunks.", flush=True)
 
         # Delete file from the unprocessed files dir
@@ -370,7 +369,7 @@ class Vector_db():
                 return False
 
         # Delete Default Chunks
-        for chunk_mongo_id in file_to_delete.chunks_ids_default_parsing:
+        for chunk_mongo_id in file_to_delete["chunks_ids_default_parsing"]:
 
             # Delete from Default Chunks
             faiss_id = self.mongo_id_to_default_faiss_id.pop(chunk_mongo_id, None)
@@ -381,7 +380,7 @@ class Vector_db():
             await default_chunk_controller.delete_chunk(chunk_mongo_id)
 
         # Delete from Smart Chunks
-        for chunk_mongo_id in file_to_delete.chunks_ids_smart_parsing:
+        for chunk_mongo_id in file_to_delete["chunks_ids_smart_parsing"]:
             faiss_id = self.mongo_id_to_smart_faiss_id.pop(chunk_mongo_id, None)
             if faiss_id is not None:
                 self.deleted_smart_faiss_ids.add(faiss_id)
@@ -390,7 +389,7 @@ class Vector_db():
             await smart_chunk_controller.delete_chunk(chunk_mongo_id)
         
         # Delete the File document itself
-        await file_controller.delete_file(file_to_delete.id)
+        await file_controller.delete_file_by_filename(file_to_delete["filename"])
         print(f"Successfully deleted file and cleaned up associated chunks for: {path}", flush=True)
         
         return True
@@ -415,20 +414,62 @@ class Vector_db():
 
         return distances, faiss_ids
     
-    def get_relevant_docs_paths(self, query: str, retrieve_limit: int = 10, smart_chunking: bool = False) -> tuple[list[str], int]:
+    def _create_temporary_vector_db(self, source_files: list[str], smart_chunking: bool, embeddingDimension: int = 768):
+        """
+        Creates a temporary FAISS database and an ID map containing only the
+        embeddings from the specified source files.
+        """
+
+        temp_db = faiss.IndexFlatL2(embeddingDimension)
+        temp_faiss_id_to_chunk_id = {}
+
+        if smart_chunking:
+            chunk_id_key = "chunks_ids_smart_parsing"
+            chunk_cache = self.smart_chunks
+        else:
+            chunk_id_key = "chunks_ids_default_parsing"
+            chunk_cache = self.default_chunks
+
+        current_faiss_id = 0
+        for path in source_files:
+            if path in self.files:
+                chunk_ids = self.files[path][chunk_id_key]
+                for chunk_id in chunk_ids:
+                    if chunk_id in chunk_cache:
+                        # Get the embedding vector
+                        embedding = chunk_cache[chunk_id]["embedding"]
+                        vector = np.array([embedding], dtype=np.float32)
+                        
+                        # Add to the temporary database
+                        temp_db.add(vector)
+                        
+                        # Add the mapping from the new ID to the original ID
+                        temp_faiss_id_to_chunk_id[current_faiss_id] = chunk_id
+                        current_faiss_id += 1
+                        
+        return temp_db, temp_faiss_id_to_chunk_id
+    
+    def get_relevant_docs_paths(self, query: str, retrieve_limit: int = 10, smart_chunking: bool = False, source_files: list[str] = None) -> tuple[list[str], int]:
         """
         Searches for relevant documents based on a query and returns their paths.
         """
 
         # Select the correct database and mappings based on the search type
-        if not smart_chunking:
-            db = self.vector_db_default_embeddings
-            id_map = self.faiss_id_to_default_chunk_id
-            chunk_cache = self.default_chunks
+        if source_files:
+            # User provided specific files, so create a temporary DB for the search
+            db, id_map = self._create_temporary_vector_db(source_files, smart_chunking)
+            if db.ntotal == 0:
+                return [], 0
         else:
-            db = self.vector_db_smart_embeddings
-            id_map = self.faiss_id_to_smart_chunk_id
-            chunk_cache = self.smart_chunks
+            # No specific files provided, so use the pre-existing full database
+            if not smart_chunking:
+                db = self.vector_db_default_embeddings
+                id_map = self.faiss_id_to_default_chunk_id
+            else:
+                db = self.vector_db_smart_embeddings
+                id_map = self.faiss_id_to_smart_chunk_id
+        
+        chunk_cache = self.smart_chunks if smart_chunking else self.default_chunks
 
         distances, faiss_ids = self._retrieve_ids_from_db(query, db, retrieve_limit)
 
@@ -445,9 +486,9 @@ class Vector_db():
             
             mongo_id = id_map.get(faiss_id)
             if mongo_id:
-                chunk = chunk_cache.get(mongo_id)
+                chunk = chunk_cache[mongo_id]
                 if chunk:
-                    relevant_paths.add(chunk.file_id)
+                    relevant_paths.add(chunk["file_id"])
                     # Check if we have reached the desired number of unique documents
                     if len(relevant_paths) >= retrieve_limit:
                         break  # Stop iterating once we have enough documents
@@ -455,20 +496,28 @@ class Vector_db():
         final_paths = list(relevant_paths)
         return final_paths, len(final_paths)
     
-    def get_relevant_chunks(self, query: str, retrieve_limit: int = 10, smart_chunking: bool = False) -> tuple[dict, int]:
+    def get_relevant_chunks(self, query: str, retrieve_limit: int = 10, smart_chunking: bool = False, source_files: list[str] = None) -> tuple[dict, int]:
         """
         Searches for relevant document chunks based on a query. It returns a list of
         non-overlapping chunks, prioritizing larger chunks over smaller ones that are
         contained within them.
         """
-        if not smart_chunking:
-            db = self.vector_db_default_embeddings
-            id_map = self.faiss_id_to_default_chunk_id
-            chunk_cache = self.default_chunks
+        # Select the correct database and mappings based on the search type
+        if source_files:
+            # User provided specific files, so create a temporary DB for the search
+            db, id_map = self._create_temporary_vector_db(source_files, smart_chunking)
+            if db.ntotal == 0:
+                return {}, 0
         else:
-            db = self.vector_db_smart_embeddings
-            id_map = self.faiss_id_to_smart_chunk_id
-            chunk_cache = self.smart_chunks
+            # No specific files provided, so use the pre-existing full database
+            if not smart_chunking:
+                db = self.vector_db_default_embeddings
+                id_map = self.faiss_id_to_default_chunk_id
+            else:
+                db = self.vector_db_smart_embeddings
+                id_map = self.faiss_id_to_smart_chunk_id
+        
+        chunk_cache = self.smart_chunks if smart_chunking else self.default_chunks
 
         distances, faiss_ids = self._retrieve_ids_from_db(query, db, retrieve_limit)
 
@@ -486,13 +535,13 @@ class Vector_db():
             if not mongo_id:
                 continue
             
-            chunk = chunk_cache.get(mongo_id)
-            if not chunk or chunk.start_pos is None or chunk.end_pos is None:
+            chunk = chunk_cache[mongo_id]
+            if not chunk or chunk["start_pos"] is None or chunk["end_pos"] is None:
                 continue
 
-            file_path = chunk.file_id
-            start_pos = chunk.start_pos
-            end_pos = chunk.end_pos
+            file_path = chunk["file_id"]
+            start_pos = chunk["start_pos"]
+            end_pos = chunk["end_pos"]
 
             is_contained = False
             if file_path in covered_areas:
@@ -503,7 +552,7 @@ class Vector_db():
             
             if not is_contained:
 
-                summary = self.files[file_path].summary
+                summary = self.files[file_path]["summary"]
 
                 new_relevant_chunk = {
                     "start_pos": start_pos,
@@ -549,9 +598,7 @@ class Vector_db():
         )
 
         try:
-            # --- BUG FIX: Use the modern 'GenerativeModel' and 'generate_content' method ---
             response = gemini_model.generate_content(prompt)
-            # The response object has a 'text' attribute with the generated string
             summary = response.text.strip()
             print(f"Generated summary: {summary}", flush=True)
             return summary

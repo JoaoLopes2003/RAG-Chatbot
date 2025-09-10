@@ -2,9 +2,11 @@ import os
 import httpx
 from dotenv import load_dotenv
 from fastapi import APIRouter, UploadFile, HTTPException, Body, status
+from fastapi.responses import StreamingResponse
+from starlette.background import BackgroundTask
 from pathlib import Path
-from schemas.messages import DeleteFileRequest, AnswerPromptRequest, AnswerPromptResponse, GetRelevantDocumentsResponse, GetRelevantChunksResponse, GetRelevantDocumentsContents, GetPromptAnswerLLMAnswer
-from .utils.utils import build_prompt_from_files, build_prompt_from_chunks
+from schemas.messages import DeleteFileRequest, AnswerPromptRequest, AnswerPromptResponse, GetRelevantDocumentsResponse, GetRelevantChunksResponse, GetRelevantDocumentsContents, GetPromptAnswerLLMAnswer, GetAllFilesResponse
+from .utils.utils import build_prompt_from_files, build_prompt_from_chunks, sanitize_filename
 
 router = APIRouter()
 
@@ -19,6 +21,118 @@ def check_connections():
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Server configuration error: service URLs are not set."
         )
+
+@router.get("/getfile", status_code=status.HTTP_200_OK)
+async def get_file(
+    filename: str
+):
+    folder, clean_filename = sanitize_filename(filename)
+
+    params_payload = {
+        "folder": folder,
+        "filename": clean_filename,
+        "converted": False
+    }
+
+    client = httpx.AsyncClient(timeout=120.0)
+
+    try:
+        # 1. Build the request but don't send it yet
+        req = client.build_request(
+            "GET",
+            f"{FILE_DATABASE_ENTRYPOINT}/getfile",
+            params=params_payload
+        )
+        
+        # 2. Send the request and open a stream.
+        #    The response object `r` is now available, but the content is not yet downloaded.
+        r = await client.send(req, stream=True)
+        
+        # 3. Check for errors from the downstream service
+        r.raise_for_status()
+
+        # 4. Return a StreamingResponse.
+        #    - Pass the async byte iterator to stream the content.
+        #    - Create a BackgroundTask to close the stream (`r.aclose`) AFTER the response is finished.
+        return StreamingResponse(
+            r.aiter_bytes(),
+            headers=r.headers,
+            media_type=r.headers.get("content-type"),
+            background=BackgroundTask(r.aclose)
+        )
+    
+    except httpx.HTTPStatusError as e:
+        # It's important to manually close the client in case of an error
+        # before raising the exception.
+        await client.aclose()
+        raise HTTPException(
+            status_code=e.response.status_code,
+            detail=f"File service error: {e.response.text}"
+        )
+    except httpx.RequestError as e:
+        await client.aclose()
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Failed to connect to the file service: {e}"
+        )
+    except Exception as e:
+        # Ensure the client is closed in any unexpected error scenario
+        await client.aclose()
+        print(f"An unexpected error occurred: {e}", flush=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An unexpected server error occurred."
+        )
+
+@router.get(
+    "/getallfiles",
+    status_code=status.HTTP_200_OK,
+    response_model=GetAllFilesResponse
+)
+async def get_all_files():
+    """
+    Acts as a client to fetch all filenames from the file database service.
+    """
+    try:
+
+        async with httpx.AsyncClient(timeout=120.0) as client:
+
+            response = await client.get(
+                f"{FILE_DATABASE_ENTRYPOINT}/getallfiles"
+            )
+
+            # Check for HTTP errors (e.g., 404, 500) from the target service
+            response.raise_for_status()
+
+            data = response.json()
+            filenames = data.get("filenames")
+
+            if filenames is None:
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail="File database service returned an invalid response format: 'filenames' key missing."
+                )
+
+        return GetAllFilesResponse(filenames=filenames)
+
+    except httpx.RequestError as e:
+        # Handles network errors, like connection refused
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Could not connect to the file database service: {e}"
+        )
+    except httpx.HTTPStatusError as e:
+        # Handles non-2xx responses from the target service
+        raise HTTPException(
+            status_code=e.response.status_code,
+            detail=f"File database service returned an error: {e.response.text}"
+        )
+    except Exception as e:
+        # Catches any other unexpected errors, including JSON parsing issues
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An unexpected error occurred: {e}"
+        )
     
 @router.post("/answerprompt", response_model=AnswerPromptResponse, status_code=status.HTTP_200_OK)
 async def answer_prompt(request: AnswerPromptRequest):
@@ -32,7 +146,7 @@ async def answer_prompt(request: AnswerPromptRequest):
     retrieve_limit = request.retrieve_limit
     smart_chunking = request.smart_chunking
     retrieve_only_chunks = request.retrieve_only_chunks
-
+    source_files = request.source_files
 
     try:
         async with httpx.AsyncClient(timeout=120.0) as client:
@@ -41,18 +155,19 @@ async def answer_prompt(request: AnswerPromptRequest):
             print(f"Step 1: Getting relevant IDs for query '{request.prompt}'...", flush=True)
             
             # Define parameters for the GET request
-            params_payload = {
+            vector_db_payload = {
                 'query': prompt,
                 'retrieve_limit': retrieve_limit,
-                'smart_chunking': smart_chunking
+                'smart_chunking': smart_chunking,
+                'source_files': source_files
             }
 
             # Select the correct endpoint based on the request
             endpoint = "/retrievechunks" if retrieve_only_chunks else "/retrievefiles"
             
-            response_vector_db = await client.get(
+            response_vector_db = await client.post(
                 f"{VECTOR_DATABASE_ENTRYPOINT}{endpoint}",
-                params=params_payload
+                json=vector_db_payload
             )
             
             if response_vector_db.status_code != status.HTTP_200_OK:
@@ -389,7 +504,7 @@ async def delete_file(
             print("Step 1: Success.", flush=True)
             
             # 3. Delete the file from the Vector Database service
-            print(f"Step 3: Deleting '{filename}' from Vector Database...", flush=True)
+            print(f"Step 2: Deleting '{filename}' from Vector Database...", flush=True)
             vector_db_data_payload = {'filename': filename, 'folder': folder}
 
             response_vector_db_delete = await client.post(
@@ -402,7 +517,7 @@ async def delete_file(
                     status_code=response_vector_db_delete.status_code,
                     detail=f"Failed to upload to Vector Database: {response_vector_db_delete.text}"
                 )
-            print("Step 3: Success.", flush=True)
+            print("Step 2: Success.", flush=True)
 
     except httpx.RequestError as e:
         raise HTTPException(

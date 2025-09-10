@@ -5,7 +5,7 @@ class UploadFileResponse(BaseModel):
     uploaded: bool
     error: str
 
-class GetRelevantDocumentsResponse(BaseModel):
+class GetRelevantFilesResponse(BaseModel):
     docs_paths: list[str]
     number_docs: int
 
@@ -24,3 +24,15 @@ class GetRelevantChunksResponse(BaseModel):
 class DeleteFileRequest(BaseModel):
     filename: str
     folder: Optional[str] = "undefined"
+
+class getRelevantFilesRequest(BaseModel):
+    query: str
+    retrieve_limit: Optional[int] = 10
+    smart_chunking: Optional[bool] = False
+    source_files: Optional[list[str]] = None
+
+class GetRelevantChunksRequest(BaseModel):
+    query: str
+    retrieve_limit: Optional[int] = 10
+    smart_chunking: Optional[bool] = False
+    source_files: Optional[list[str]] = None

@@ -18,7 +18,7 @@ ALLOWED_CONTENT_TYPES = [
     "application/pdf"
 ]
 
-@router.get("/getfile")
+@router.get("/getfile", status_code=status.HTTP_200_OK)
 def get_file(
     folder: str,
     filename: str,

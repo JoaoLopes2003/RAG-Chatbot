@@ -83,3 +83,19 @@ async def delete_file(file_id: str) -> File | None:
         await file.delete()
         return file
     return None
+
+async def delete_file_by_filename(filename: str) -> File | None:
+    """
+    Deletes a file document from the database.
+
+    Args:
+        file_id (str): The ID of the file to delete.
+
+    Returns:
+        Optional[File]: The deleted File object or None if not found.
+    """
+    file = await File.find_one(File.filename == filename)
+    if file:
+        await file.delete()
+        return file
+    return None

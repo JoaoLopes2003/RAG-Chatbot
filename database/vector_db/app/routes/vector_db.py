@@ -2,7 +2,7 @@ import shutil
 from fastapi import APIRouter, UploadFile, HTTPException, Body, status, Depends
 from pathlib import Path
 from services import myconstants
-from schemas.messages import DeleteFileRequest, GetRelevantDocumentsResponse, GetRelevantChunksResponse
+from schemas.messages import DeleteFileRequest, GetRelevantFilesResponse, GetRelevantChunksResponse, getRelevantFilesRequest, GetRelevantChunksRequest
 
 from dependencies import get_vector_db
 from services.vector_db import Vector_db
@@ -11,31 +11,41 @@ router = APIRouter()
 
 UNPROCESSED_FILES_DIR = Path(myconstants.UNPROCESSED_FILES_DIR)
 
-@router.get(
+@router.post(
     "/retrievefiles",
-    response_model=GetRelevantDocumentsResponse,
+    response_model=GetRelevantFilesResponse,
     status_code=status.HTTP_200_OK
 )
 async def retrieve_files(
-    query: str, 
-    retrieve_limit: int = 10, 
-    smart_chunking: bool = False,
+    request: getRelevantFilesRequest,
     vector_db: Vector_db = Depends(get_vector_db)
 ):
+    
+    query = request.query
+    retrieve_limit = request.retrieve_limit
+    smart_chunking = request.smart_chunking
+    source_files = request.source_files
 
-    docs, doc_count = vector_db.get_relevant_docs_paths(query, retrieve_limit, smart_chunking)
+    docs, doc_count = vector_db.get_relevant_docs_paths(query, retrieve_limit, smart_chunking, source_files)
 
-    return GetRelevantDocumentsResponse(docs_paths=docs, number_docs=doc_count)
+    return GetRelevantFilesResponse(docs_paths=docs, number_docs=doc_count)
 
-@router.get("/retrievechunks", response_model=GetRelevantChunksResponse)
+@router.post(
+    "/retrievechunks",
+    response_model=GetRelevantChunksResponse,
+    status_code=status.HTTP_200_OK
+)
 async def retrieve_chunks(
-    query: str, 
-    retrieve_limit: int = 10, 
-    smart_chunking: bool = False,
+    request: GetRelevantChunksRequest,
     vector_db: Vector_db = Depends(get_vector_db)
 ):
+    
+    query = request.query
+    retrieve_limit = request.retrieve_limit
+    smart_chunking = request.smart_chunking
+    source_files = request.source_files
 
-    chunks, chunk_count = vector_db.get_relevant_chunks(query, retrieve_limit, smart_chunking)
+    chunks, chunk_count = vector_db.get_relevant_chunks(query, retrieve_limit, smart_chunking, source_files)
     
     return GetRelevantChunksResponse(files_chunks=chunks, chunk_count=chunk_count)
 
@@ -136,6 +146,7 @@ async def delete_file(
     folder = request_data.folder
     filename = request_data.filename
     relative_path = str(Path(folder) / filename)
+    relative_path += ".md"
     
     # Delete teh file from the database
     success = await vector_db.delete_file_from_server(relative_path)
