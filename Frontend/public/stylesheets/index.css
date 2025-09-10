@@ -286,29 +286,6 @@ a.menu-option {
     background-color: rgba(176, 176, 176, 0.3);
 }
 
-.search-engine-container {
-    position: absolute;
-    top: 0;
-    left: 100vw;
-    display: flex;
-    flex-direction: column;
-    width: 22vw;
-    background-color: #FFDB75;
-    height: 100vh;
-    padding-top: 8vh;
-    z-index: 1;
-    box-sizing: border-box;
-    transition: left 0.8s ease;
-}
-
-.search-engine-container.active-1 {
-    left: 78vw;
-}
-
-.search-engine-container.active-2 {
-    left: 60vw;
-}
-
 .messages-container {
     position: absolute;
     display: flex;
@@ -549,4 +526,173 @@ a.menu-option {
 .copy-option-activated:hover {
     background-color: rgba(176, 176, 176, 0.2);
     cursor: pointer;
+}
+
+.search-engine-container {
+    position: absolute;
+    top: 0;
+    left: 100vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 22vw;
+    height: 100vh;
+    padding-top: 8vh;
+    z-index: 1;
+    box-sizing: border-box;
+    transition: left 0.8s ease;
+}
+
+.search-engine-container.active-1 {
+    left: 78vw;
+}
+
+.search-engine-container.active-2 {
+    left: 60vw;
+}
+
+.search-engine-options-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 60px;
+    background-color: white;
+    box-sizing: border-box;
+}
+
+.search-engine-options-container > .search-engine-options {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50%;
+    height: 100%;
+    background-color: white;
+    padding: 12px 10px;
+    color: #724D35;
+    font-weight: 500;
+    box-sizing: border-box;
+    gap: 5px;
+}
+
+.search-engine-options > img {
+    height: 70%;
+}
+
+.search-engine-options > span {
+    font-size: 1rem;
+    margin-top: 2px;
+}
+
+.search-engine-options-container > .search-engine-options:hover {
+    background-color: rgba(176, 176, 176, 0.2);
+    box-shadow: inset -2px 2px 5px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+}
+
+.search-engine-options-content-container {
+    background-color: #FFDB75;
+    height: 100%;
+}
+
+.search-engine-options-container > .search-engine-options.active {
+    background-color: rgba(176, 176, 176, 0.2);
+    box-shadow: inset -2px 2px 5px rgba(0, 0, 0, 0.1);
+    cursor: default;
+}
+
+.search-engine-settings-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: start;
+    padding: 10px;
+    gap: 15px;
+}
+
+.setting-box {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: start;
+    gap: 5px;
+    width: 100%;
+}
+
+#basicSettingsForm, #advancedSettingsForm {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#advancedSettingsForm > fieldset, #basicSettingsForm > fieldset {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: start;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.search-engine-settings-container > h2 {
+    all: unset;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #724D35;
+}
+
+#settingsForm {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    gap: 20px;
+}
+
+#settingsForm fieldset {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: start;
+    width: 100%;
+    box-sizing: border-box;
+    border-color: rgba(176, 176, 176, 0.2);
+}
+
+#settingsForm legend {
+    all: unset;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #724D35;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+#advancedSettingsForm span, #basicSettingsForm select {
+    margin-bottom: 7px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#settingsForm label {
+    color: #724D35;
+}
+
+#advancedSettingsForm span {
+    color: rgba(114, 77, 53, 0.7);
+    font-size: 12px;
+}
+
+#settingsForm input {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#advancedSettingsForm select {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#settingsForm option, #settingsForm input, #settingsForm select {
+    font-size: 12px;
 }

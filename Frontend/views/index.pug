@@ -36,4 +36,41 @@ block content
                         button#sendButton(type="submit")
                             | &#x2191;
             .search-engine-container
-                span OLA
+                .search-engine-options-content-container
+                    .search-engine-settings-container
+                        h2 Settings
+                        .setting-box
+                            form#settingsForm(action="/")
+                                fieldset#basicSettingsForm
+                                    legend Basic Settings
+                                    label(for="input_language") Input Language
+                                    select(id="input_language" name="input_language")
+                                        option(value="English" selected) English
+                                        option(value="Română") Română
+                                    label(for="output_language") Output Language
+                                    select(id="output_language" name="output_language")
+                                        option(value="English" selected) English
+                                        option(value="Română") Română
+                                fieldset#advancedSettingsForm
+                                    legend Advanced Settings
+                                    label(for="retrieve_only_chunks") Retrieve Only Chunks
+                                    select(id="retrieve_only_chunks" name="retrieve_only_chunks")
+                                        option(value="True") True
+                                        option(value="False" selected) False
+                                    span (Default value is: False)
+                                    label(for="precise_chunking") Precise Chunking
+                                    select(id="precise_chunking" name="precise_chunking")
+                                        option(value="True") True
+                                        option(value="False" selected) False
+                                    span (Default value is: False)
+                                    label(for="retrieve_limit") Retrieve Limit
+                                    input(type="number" id="retrieve_limit" name="retrieve_limit" value="10" min="0" max="1000")
+                                    span (Default value is: 10)
+                                    label(for="retrieve_limit") Sources of Knowledge
+                .search-engine-options-container
+                    .search-engine-options
+                        img(src='/images/icon-settings.svg', alt='Settings Icon')
+                        span Settings
+                    .search-engine-options
+                        img(src='/images/icon-magnifying-glass.svg', alt='Magnifying Glass Icon')
+                        span Sources
