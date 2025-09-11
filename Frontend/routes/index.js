@@ -10,6 +10,36 @@ router.get('/', function(req, res, next) {
     res.render('index', { currentPage: 'Chatbot' });
 });
 
+/* Answer a client prompt */
+router.post('/answerprompt', async function(req, res, next) {
+    console.log('Proxying /answerprompt request to backend with data:', req.body);
+
+    try {
+        const response = await axios.post(
+            `${BACKEND_HOST}/answerprompt`,
+            req.body,
+            {
+                timeout: 300000 // 2.5 minutes
+            }
+        );
+
+        // If the backend responds successfully, forward its response (data and status)
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+        // If anything goes wrong during the proxy request, handle the error gracefully.
+        console.error("Error proxying /answerprompt:", error.message);
+
+        if (error.response) {
+            res.status(error.response.status).send(error.response.data);
+        } else if (error.request) {
+            res.status(503).send("The backend chatbot service is unavailable.");
+        } else {
+            res.status(500).send("An internal server error occurred while processing the request.");
+        }
+    }
+});
+
 /* Download a specific file from the server. */
 router.get('/getfile/:filepath(*)', async function(req, res, next) {
     // The (*) in the route path allows for slashes in the filename

@@ -1,4 +1,4 @@
-class Settings {
+export default class Settings {
     constructor() {
 
         // Basic Settings
@@ -44,16 +44,22 @@ class Settings {
         console.log("Settings instance created.");
     }
 
+    // Converts the selectedDocuments object into the flat array
+    getSourceFiles() {
+        const sourceFiles = [];
+        for (const folder in this.selectedDocuments) {
+            for (const file of this.selectedDocuments[folder]) {
+                sourceFiles.push(`${folder}/${file}`);
+            }
+        }
+        return sourceFiles;
+    }
+
     static async create() {
         const settingsInstance = new Settings();
 
         // Fetch the documents that exist in the server
         await settingsInstance.fetchDocuments();
-
-        // Initialize all folders as open by default
-        Object.keys(settingsInstance.documents).forEach(folderName => {
-            settingsInstance.openFolders.add(folderName);
-        });
 
         // Populate and initialize the upload form after fetching data
         settingsInstance.populateFolderDropdown();
@@ -549,8 +555,3 @@ class Settings {
         }
     }
 }
-
-document.addEventListener('DOMContentLoaded', async () => {
-    const appSettings = await Settings.create();
-    console.log("Settings class is fully initialized and ready to use.");
-});

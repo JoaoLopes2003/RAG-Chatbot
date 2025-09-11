@@ -151,6 +151,8 @@ async def answer_prompt(request: AnswerPromptRequest):
     smart_chunking = request.smart_chunking
     retrieve_only_chunks = request.retrieve_only_chunks
     source_files = request.source_files
+    input_language = request.input_language
+    output_language = request.output_language
 
     try:
         async with httpx.AsyncClient(timeout=120.0) as client:

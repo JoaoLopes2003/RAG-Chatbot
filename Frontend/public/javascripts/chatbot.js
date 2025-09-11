@@ -1,5 +1,7 @@
-class ChatBot {
-    constructor() {
+export default class ChatBot {
+    constructor(settings) {
+        this.settings = settings;
+
         this.form = document.getElementById('chatForm');
         this.textarea = document.getElementById('message');
         this.sendButton = document.getElementById('sendButton');
@@ -107,7 +109,12 @@ class ChatBot {
                 },
                 body: JSON.stringify({
                     prompt: message,
-                    history: this.history
+                    retrieve_limit: this.settings.retrieve_limit_value,
+                    smart_chunking: this.settings.precise_chunking_value,
+                    retrieve_only_chunks: this.settings.retrieve_only_chunks_value,
+                    source_files: this.settings.getSourceFiles(),
+                    input_language: this.settings.input_language_value,
+                    output_language: this.settings.output_language_value,
                 })
             });
             
@@ -120,10 +127,10 @@ class ChatBot {
             // Update history
             this.history.push(
                 { role: 'user', content: message },
-                { role: 'assistant', content: data.response }
+                { role: 'assistant', content: data.answer }
             );
 
-            this.addChatbotMessage(data.response)
+            this.addChatbotMessage(data.answer)
             
         } catch (error) {
             this.addChatbotErrorMessage()
@@ -404,8 +411,3 @@ class ChatBot {
         return text;
     }
 }
-
-// Initialize chatbot when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    new ChatBot();
-});
