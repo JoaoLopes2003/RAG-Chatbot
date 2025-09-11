@@ -100,7 +100,7 @@ class ChatBot {
         
         try {
             // Send request to server
-            const response = await fetch('http://localhost:3001/llm', {
+            const response = await fetch('http://localhost:3007/answerprompt', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

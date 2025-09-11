@@ -531,6 +531,10 @@ class FILE_MANAGER():
 
             # 4. If all previous steps succeeded, remove from in-memory state
             del self.files[file.folder][filename_with_ext]
+
+            # 5. Remove folder key if it's now empty
+            if not self.files[file.folder]:
+                del self.files[file.folder]
             
             print(f"Successfully deleted all artifacts for {filename_with_ext}", flush=True)
             return True

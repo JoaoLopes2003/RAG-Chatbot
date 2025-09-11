@@ -26,6 +26,10 @@ def check_connections():
 async def get_file(
     filename: str
 ):
+    print("-"*30, flush=True)
+    print(filename, flush=True)
+    print("-"*30, flush=True)
+
     folder, clean_filename = sanitize_filename(filename)
 
     params_payload = {
@@ -272,6 +276,10 @@ async def upload_file(
     3. Uploads the Markdown version to the Vector Database for embedding.
     """
 
+    print("-"*30, flush=True)
+    print(template_folder, flush=True)
+    print("-"*30, flush=True)
+
     check_connections()
 
     try:
@@ -376,6 +384,10 @@ async def update_file(
 
     Important: In case the file doesn't exist in any of this systems, a new one will be updated.
     """
+
+    print("-"*30, flush=True)
+    print(template_folder, flush=True)
+    print("-"*30, flush=True)
     
     check_connections()
 
@@ -477,6 +489,10 @@ async def delete_file(
     1. Deletes the original file from the File Database service.
     3. Deletes the file info from the Vector Database.
     """
+
+    print("-"*30, flush=True)
+    print(request, flush=True)
+    print("-"*30, flush=True)
 
     filename = request.filename
     folder = request.folder

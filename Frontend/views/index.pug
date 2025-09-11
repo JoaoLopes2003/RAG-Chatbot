@@ -39,7 +39,7 @@ block content
                 .search-engine-options-content-container
                     .search-engine-settings-container
                         h2 Settings
-                        .setting-box
+                        .settings-box
                             form#settingsForm(action="/")
                                 fieldset#basicSettingsForm
                                     legend Basic Settings
@@ -51,6 +51,8 @@ block content
                                     select(id="output_language" name="output_language")
                                         option(value="English" selected) English
                                         option(value="Română") Română
+                                    button#saveBasicSettings(onclick="") Save
+                                    span.save-confirmation#basicSaveMsg
                                 fieldset#advancedSettingsForm
                                     legend Advanced Settings
                                     label(for="retrieve_only_chunks") Retrieve Only Chunks
@@ -67,6 +69,51 @@ block content
                                     input(type="number" id="retrieve_limit" name="retrieve_limit" value="10" min="0" max="1000")
                                     span (Default value is: 10)
                                     label(for="retrieve_limit") Sources of Knowledge
+                                    .documents-wrapper    
+                                        #documents_container
+                                            //- Documents will be loaded here
+                                        .spinner-overlay.hidden#documentsSpinnerOverlay
+                                            .spinner
+                                    button#saveAdvancedSettings(onclick="") Save
+                                    .save-confirmation#advancedSaveMsg
+
+                        form#upload-file-container
+                            fieldset
+                                legend Upload File
+                                label(for="template_folder") Template folder
+                                select(id="template_folder" name="template_folder")
+                                    option(value="Fise produse - Agropan" selected) Fise produse - Agropan
+                                    option(value="Default") Default
+                                    option(value="Create a new one") Create a new one
+                                label(for="new_template_folder") New template name
+                                input(type="text" id="new_template_folder" name="new_template_folder")
+                                label(for="loadfile") Choose File
+                                button#upload_loadfilebutton(type="button")
+                                    img.upload-icon(src='/images/icon-upload-file.svg', alt='Upload File Icon')
+                                    span.selected-filename#upload_filename
+                                    img.remove-file-icon(src='/images/icon-delete-bin.svg', alt='Remove File')
+                                input(type="file" style="display:none;" id="loadfile" name="file" required)
+                                #upload-file-submit-container
+                                    input(type="submit")
+                        
+                        form#update-file-container
+                            fieldset
+                                legend Update File
+                                label(for="update_folder") File folder
+                                select(id="update_folder" name="template_folder")
+                                    option(value="Fise produse - Agropan" selected) Fise produse - Agropan
+                                label(for="updated_file") Choose File
+                                button#update_loadfilebutton(type="button")
+                                    img.upload-icon(src='/images/icon-upload-file.svg', alt='Upload File Icon')
+                                    span.selected-filename#update_filename
+                                    img.remove-file-icon(src='/images/icon-delete-bin.svg', alt='Remove File')
+                                input(type="file" style="display:none;" id="updated_file" name="file" required)
+                                #update-file-submit-container
+                                    input(type="submit")
+                                
+
+
+
                 .search-engine-options-container
                     .search-engine-options
                         img(src='/images/icon-settings.svg', alt='Settings Icon')

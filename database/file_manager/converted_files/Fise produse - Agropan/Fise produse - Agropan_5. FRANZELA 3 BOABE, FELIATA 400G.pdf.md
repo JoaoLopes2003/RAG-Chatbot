@@ -1,0 +1,90 @@
+# 3 Grain Bread, sliced - 400g
+
+## Product name
+3 Grain Bread, sliced – 400g
+
+## Weight
+sliced, packaged product - 400g
+
+## Category
+BAKERY/Packaged bread
+
+## Product photo
+| Simple | Sliced | Packaged |
+|---|---|---|
+|  |  |  |
+
+## Product description
+3 Grain Bread - a bread with whole wheat, rye and oat flour, for those who want everything from a specialist in baking and healthy nutrition!
+
+3 Grain Bread is an ideal way to maintain our health without special efforts, while savoring a special taste and aroma, conferred not only by the complex composition of the raw materials, but also by the production process with semi-fluid sourdough, fermented for ~8 hours, necessary both for ensuring the microbiological stability of the finished product, and for the richness of the aromas resulting naturally from the long fermentation process.
+
+Why do children like it so much?
+Its rich, slightly sweet taste and dense texture make this type of bread a perfect match for all the foods it comes into contact with, highlighting their freshness.
+
+This product contains 3 types of WHOLE FLOUR:
+* 60% whole WHEAT flour,
+* 5% whole RYE flour
+* 2% whole OAT flour.
+
+## Product Benefits:
+
+By grinding the grains whole, all the nutritive components in the structure of the grain are kept together: the shell, the germ and the endosperm. In usual processes, only the endosperm is kept, but the nutritive ratio is diminished.
+
+* The grain shell contains most of the fiber in its structure, vitamins, enzymes and mineral salts. The germ contains almost all the lipids and proteins in the grain, as well as mineral salts and vitamins, while the endosperm is mostly composed of starch. Whole grain flour, together with the added seeds, provides the body with a daily boost of vitamins, carbohydrates, minerals and proteins.
+
+
+3 reasons to make sure you've made a wonderful choice:
+
+1. Beauty
+Whole wheat contains protein, vegetable fiber, vitamins, mineral salts (phosphorus, magnesium and calcium salts), as well as other active ingredients with antioxidant roles. The content of mineral salts helps maintain blood vessels in very good condition.
+Its long-term consumption helps detoxify the body, thus preventing all forms of cancer of the digestive tract, constipation, colitis and obesity.
+
+The contribution of whole rye and oat flour
+Besides the generally valid benefits of wholemeal flours, "3 Grain Bread - Miller's Secret" also brings the fact that it is made of 3 WHOLE GRAINS, besides WHEAT also containing WHOLE RYE and WHOLE OATS.
+
+2. Energy
+Rye is a cereal rich in manganese, selenium, phosphorus and magnesium, as well as vitamins A, B, E and K. It contributes to the biosynthesis in the body of enzymes responsible for the good use of glucose and the secretion of insulin, necessary for good digestion.
+
+3. Freedom
+Oats - due to its high fiber content, participates in detoxifying the body, effective for restoring appetite, lowers cholesterol, lowers blood sugar, prevents the occurrence of cardiovascular diseases, thyroid stimulant.
+
+
+The benefits of whole wheat flour compared to regular flour
+The structure of the cereal grain is as follows:
+* The shell represents 12-16% of the total weight and contains most of the fiber in the grain structure, vitamins, mineral salts and enzymes.
+* The germ, 2-3% of the grain weight, contains almost 100% of the lipids and proteins of the wheat grain, as well as vitamins and mineral salts.
+* The endosperm, 80-85% of the total weight, is mostly composed of starch and very few proteins.
+
+While the shell and germ have complex botanical roles, hence their rich structure in fiber and nutrients, the endosperm is just a food reservoir for the germination process. As human food, it is rich in energy, but poor in nutrients. Modern cereal processing has allowed the separation of bran and germ which, being rich in proteins, enzymes, antioxidants and fats, confer a degree of microbiological and biochemical instability to the flours. Practicing this method leads to obtaining white flours with a reduced content of bioactive principles.
+However, by grinding the whole grains without any sifting, all the remarkable components in the grain structure are kept together, resulting in whole grain flour, a complex product and an ideal raw material for whole grain bread, a functional food rich in active principles, an indispensable component of a complete and healthy diet. Wholemeal flours contain: Proteins (13-15g%); Vegetable fiber (10-15%); Vitamins; Mineral salts; flavones (with the role of antioxidants).
+
+
+## Ingredients
+**INGREDIENTS:**
+Wholemeal flour (60% whole wheat flour, 5% whole rye flour, 2% whole oat flour), water, wheat gluten, yeast, soy flour, iodized salt, emulsifier (mono- and diglycerides of fatty acids), preservative (calcium propionate), antioxidant (ascorbic acid), flour treatment agent (L-cysteine), enzymes.
+
+## Allergens
+Gluten, soy.  May contain traces of sesame and nuts.
+
+## Nutritional values
+Energy and nutritional value per 100g
+
+| Average energy and nutritional values | Value | %RI* per 100g |
+|-----------------------------------------|-------|-----------------|
+| Energy value                           | 238 kcal/968 kj | 11.5            |
+| Fats                                   | 1.3 g          | 1.9             |
+| of which saturated fatty acids         | 0.3 g          | 1.5             |
+| Carbohydrates                          | 38.5 g          | 14.8            |
+| of which sugars                        | 5 g            | 5.6             |
+| Proteins                              | 15.6 g          | 31.2            |
+| Salt                                   | 1.3 g          | 22              |
+
+## Shelf life
+5 days
+
+---
+**PRODUCT SHEET**
+- **Codification:** PS 05-F 17
+- **Edition:** 01
+- **Revision:** 01 / 01.02.2022
