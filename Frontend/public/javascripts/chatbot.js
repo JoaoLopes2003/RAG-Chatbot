@@ -2,6 +2,7 @@ export default class ChatBot {
     constructor(settings) {
         this.settings = settings;
 
+        this.chatbot = document.querySelector('.chatbot');
         this.form = document.getElementById('chatForm');
         this.textarea = document.getElementById('message');
         this.sendButton = document.getElementById('sendButton');
@@ -341,6 +342,12 @@ export default class ChatBot {
         
         resizeObserver.observe(this.form);
         resizeObserver.observe(this.messagesContainer);
+
+        const observerChatbotSectionResize = new ResizeObserver(() => {
+            this.positionFade();
+        });
+
+        observerChatbotSectionResize.observe(this.chatbot);
     }
 
     removeChatbotFilter() {
@@ -357,6 +364,7 @@ export default class ChatBot {
         const newChatboxFiller = document.createElement("div");
         newChatboxFiller.classList.add("chatbox-filler");
         newChatboxFiller.style.minHeight = `${newHeight}px`;
+        newChatboxFiller.style.width = `100%`
 
         // Add the new filler to the DOM
         this.messagesContainer.appendChild(newChatboxFiller);

@@ -866,6 +866,11 @@ a.menu-option {
     box-sizing: border-box;
 }
 
+#upload-file-container fieldset, #update-file-container fieldset {
+    width: 100%;
+    box-sizing: border-box;
+}
+
 #upload-file-container select, #upload-file-container input, #update-file-container select {
     width: 100%;
     box-sizing: border-box;
