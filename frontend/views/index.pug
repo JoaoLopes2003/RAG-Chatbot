@@ -37,7 +37,7 @@ block content
                             | &#x2191;
             .search-engine-container
                 .search-engine-options-content-container
-                    .search-engine-settings-container
+                    .search-engine-settings-container.active(data-pane="settings")
                         h2 Settings
                         .settings-box
                             form#settingsForm(action="/")
@@ -45,12 +45,12 @@ block content
                                     legend Basic Settings
                                     label(for="input_language") Input Language
                                     select(id="input_language" name="input_language")
-                                        option(value="English" selected) English
-                                        option(value="Română") Română
+                                        option(value="en" selected) English
+                                        option(value="ro") Română
                                     label(for="output_language") Output Language
                                     select(id="output_language" name="output_language")
-                                        option(value="English" selected) English
-                                        option(value="Română") Română
+                                        option(value="en" selected) English
+                                        option(value="ro") Română
                                     button#saveBasicSettings(onclick="") Save
                                     span.save-confirmation#basicSaveMsg
                                 fieldset#advancedSettingsForm
@@ -110,14 +110,21 @@ block content
                                 input(type="file" style="display:none;" id="updated_file" name="file" required)
                                 #update-file-submit-container
                                     input(type="submit")
-                                
+
+                    .search-engine-sources-content-container(data-pane="sources")
+                        #sources-container
+                            h2 Sources
+                            #sources-container-2
+                                //- This div will be populated by your Sources class
+                                p Sources for the latest answer will be displayed here.
 
 
 
                 .search-engine-options-container
-                    .search-engine-options
+                    //- Added button elements, data-tab attributes, and the .active class.
+                    .search-engine-options.active(data-tab="settings")
                         img(src='/images/icon-settings.svg', alt='Settings Icon')
                         span Settings
-                    .search-engine-options
+                    .search-engine-options(data-tab="sources")
                         img(src='/images/icon-magnifying-glass.svg', alt='Magnifying Glass Icon')
                         span Sources

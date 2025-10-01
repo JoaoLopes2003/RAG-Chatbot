@@ -1,5 +1,5 @@
 Document: 1
-Document Name: /folder/14. PAINE TOAST CU FAINA ALBA DE GRAU FELIATA 600G.pdf.md
+Document Name: /undefined/14. PAINE TOAST CU FAINA ALBA DE GRAU FELIATA 600G.pdf.md
 Document Content:
 # Toast Bread with white wheat flour, sliced - 600g
 ## Nutritional values
@@ -10,7 +10,7 @@ Document Content:
 | Salt | 0.8 g |
 -------------
 Document: 2
-Document Name: /folder/15.PAINE TOAST CU FAINA INTEGRALA DE GRAU FELIATA 600G.pdf.md
+Document Name: /undefined/15.PAINE TOAST CU FAINA INTEGRALA DE GRAU FELIATA 600G.pdf.md
 Document Content:
 # Toast Bread with whole wheat flour, sliced - 600g
 ## Nutritional values
@@ -21,7 +21,7 @@ Document Content:
 | Salt | 1.1 g |
 -------------
 Document: 3
-Document Name: /folder/16. PAINE TOAST CU FAINA DE SECARA FELIATA 600G.pdf.md
+Document Name: /Fise produse - Agropan/16. PAINE TOAST CU FAINA DE SECARA FELIATA 600G.pdf.md
 Document Content:
 # Rye Toast Bread, sliced - 600g
 ## Nutritional values
@@ -37,15 +37,15 @@ Answer:
   "answer": "### Nutritional Comparison of Toast Breads\nCertainly. Here is a table comparing the nutritional values per 100g for the three toast breads based on the documents provided:\n\n| Bread Type | Energy Value | Proteins | Salt |\n|---|---|---|---|\n| **White Wheat Flour Toast** | 268 kcal | 8 g | 0.8 g |\n| **Whole Wheat Flour Toast** | 224 kcal | 10.5 g | 1.1 g |\n| **Rye Toast Bread** | 265 kcal | 8.5 g | 0.9 g |",
   "sources": [
     {
-      "document_name": "/folder/14. PAINE TOAST CU FAINA ALBA DE GRAU FELIATA 600G.pdf.md",
+      "document_name": "/undefined/14. PAINE TOAST CU FAINA ALBA DE GRAU FELIATA 600G.pdf.md",
       "quote": "| Energy value | 268kcal/1132kj |\n| Proteins | 8 g |\n| Salt | 0.8 g |"
     },
     {
-      "document_name": "/folder/15.PAINE TOAST CU FAINA INTEGRALA DE GRAU FELIATA 600G.pdf.md",
+      "document_name": "/undefined/15.PAINE TOAST CU FAINA INTEGRALA DE GRAU FELIATA 600G.pdf.md",
       "quote": "| Energy value | 224kcal/948kj |\n| Proteins | 10.5 g |\n| Salt | 1.1 g |"
     },
     {
-      "document_name": "/folder/16. PAINE TOAST CU FAINA DE SECARA FELIATA 600G.pdf.md",
+      "document_name": "/Fise produse - Agropan/16. PAINE TOAST CU FAINA DE SECARA FELIATA 600G.pdf.md",
       "quote": "| Energy value | 265kcal/1119kj |\n| Proteins | 8.5 g |\n| Salt | 0.9 g |"
     }
   ]

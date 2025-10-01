@@ -1,19 +1,19 @@
 Document: 1
-Document Name: /folder/17. PAINEA LUI STEFAN ALBA FELIATA 500G.pdf.md
+Document Name: /Fise produse - Agropan/17. PAINEA LUI STEFAN ALBA FELIATA 500G.pdf.md
 Document Content:
 # Ștefan's White Bread, sliced – 500g
 ## Product description
 Ștefan's Bread is a specialty from Iași, created according to the traditional method, using only natural ingredients - water, flour, and sourdough.
 -------------
 Document: 2
-Document Name: /folder/11.PAINEA MANDRIA BRUTARULUI FELIATA 500G.pdf.md
+Document Name: /breads/11.PAINEA MANDRIA BRUTARULUI FELIATA 500G.pdf.md
 Document Content:
 # The Baker's Pride Bread, sliced – 500g
 ## Product description
 A well-browned and proud bread... is always a bread made the old-fashioned way, from natural ingredients and sourdough. The Baker's Pride is kneaded with sourdough cared for by us...
 -------------
 Document: 3
-Document Name: /folder/10. SECARA SPECIALA FELIATA 500G.pdf.md
+Document Name: /products/10. SECARA SPECIALA FELIATA 500G.pdf.md
 Document Content:
 # Special Rye, sliced – 500g
 ## Product description
@@ -25,11 +25,11 @@ Answer:
   "answer": "### Sourdough Bread Selection\nBased on the product sheets provided, the following breads are made with **sourdough**:\n- **Ștefan's White Bread:** The description states it is created using the traditional method with natural ingredients, including sourdough.\n- **The Baker's Pride Bread:** This bread is described as being made \"the old-fashioned way, from natural ingredients and sourdough.\"",
   "sources": [
     {
-      "document_name": "/folder/17. PAINEA LUI STEFAN ALBA FELIATA 500G.pdf.md",
+      "document_name": "/Fise produse - Agropan/17. PAINEA LUI STEFAN ALBA FELIATA 500G.pdf.md",
       "quote": "Ștefan's Bread is a specialty from Iași, created according to the traditional method, using only natural ingredients - water, flour, and sourdough."
     },
     {
-      "document_name": "/folder/11.PAINEA MANDRIA BRUTARULUI FELIATA 500G.pdf.md",
+      "document_name": "/breads/11.PAINEA MANDRIA BRUTARULUI FELIATA 500G.pdf.md",
       "quote": "A well-browned and proud bread... is always a bread made the old-fashioned way, from natural ingredients and sourdough."
     }
   ]

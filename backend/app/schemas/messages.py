@@ -7,8 +7,8 @@ class AnswerPromptRequest(BaseModel):
     smart_chunking: Optional[bool] = True
     retrieve_only_chunks: Optional[bool] = True
     source_files: Optional[list[str]] = None
-    input_language: Optional[str] = "English"
-    output_language: Optional[str] = "English"
+    input_language: Optional[str] = "en"
+    output_language: Optional[str] = "en"
 
 class AnswerPromptResponse(BaseModel):
     answer: str

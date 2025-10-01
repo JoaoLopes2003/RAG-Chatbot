@@ -3,7 +3,7 @@ var axios = require('axios');
 var path = require('path');
 var router = express.Router();
 
-var BACKEND_HOST = process.env.BACKEND_HOST || 'http://localhost:3007';
+var BACKEND_HOST = process.env.BACKEND_ENTRYPOINT || 'http://localhost:3007';
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -42,7 +42,6 @@ router.post('/answerprompt', async function(req, res, next) {
 
 /* Download a specific file from the server. */
 router.get('/getfile/:filepath(*)', async function(req, res, next) {
-    // The (*) in the route path allows for slashes in the filename
     const filepath = req.params.filepath;
 
     try {
@@ -55,23 +54,24 @@ router.get('/getfile/:filepath(*)', async function(req, res, next) {
             responseType: 'stream'
         });
 
-        // Extract just the filename (e.g., "file.pdf") from the full path ("folder/file.pdf")
-        const cleanFilename = path.basename(filepath);
-
-        // First, set all the headers from the backend response (like Content-Type, Content-Length)
         res.set(response.headers);
-
-        // Explicitly set the Content-Disposition header to the correct filename
-        res.setHeader('Content-Disposition', `attachment; filename="${cleanFilename}"`);
-
-        // Pipe the file stream from the backend directly to the client's response.
+        res.setHeader('Content-Disposition', `attachment; filename="${path.basename(filepath)}"`);
         response.data.pipe(res);
 
     } catch (error) {
         console.error("Error proxying /getfile:", error.message);
-        // Handle errors from the backend service
+
         if (error.response) {
-            res.status(error.response.status).send(error.response.data);
+            // The backend responded with an error. We must handle its response carefully.
+            res.status(error.response.status);
+
+            // FIX: Check if the error data is a stream. If so, pipe it.
+            // Otherwise, send it normally. This prevents the circular JSON error.
+            if (error.response.data && typeof error.response.data.pipe === 'function') {
+                error.response.data.pipe(res);
+            } else {
+                res.send(error.response.data);
+            }
         } else if (error.request) {
             res.status(503).send("The backend file service is unavailable.");
         } else {

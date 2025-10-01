@@ -8,24 +8,31 @@ volumes:
   mongodb_data:
 
 services:
-  # The Orchestrator Service (your backend)
+  # The Orchestrator Service (backend)
   orchestrator:
     build:
-      context: ./backend  # Assumes your orchestrator code is in a 'backend' subfolder
+      context: ./backend
     ports:
       - "3007:3007"
+    environment:
+      - FILE_DATABASE_ENTRYPOINT=http://file_manager:3005
+      - VECTOR_DATABASE_ENTRYPOINT=http://vector_db:3006
+      - LLM_ENTRYPOINT=http://llm_service:3002
+      - TRANSLATION_SERVICE_ENTRYPOINT=http://translation_service:3004
     depends_on:
       - file_manager
-      - vector_bd
+      - vector_db
     networks:
       - app-network
 
-  # Your File Database Service
+  # File Database Service
   file_manager:
     build:
       context: ./database/file_manager
     ports:
       - "3005:3005"
+    environment:
+      - API_KEY=${GEMINI_API_KEY_FILE_MANAGER}
     volumes:
       - type: bind
         source: ./database/file_manager/converted_files/
@@ -42,12 +49,17 @@ services:
     networks:
       - app-network
 
-  # Your Vector DB Service
-  vector_bd:
+  # Vector DB Service
+  vector_db:
     build:
       context: ./database/vector_db
     ports:
       - "3006:3006"
+    environment:
+      - API_KEY=${GEMINI_API_KEY_VECTOR_DB}
+      - MONGO_DB_HOST=${MONGO_DB_HOST}
+      - MONGO_DB_PORT=${MONGO_DB_PORT}
+      - MONGO_DB_NAME=${MONGO_DB_NAME}
     volumes:
       - type: bind
         source: ./database/vector_db/unprocessed_files/
@@ -73,5 +85,29 @@ services:
       context: ./llm_service
     ports:
       - "3002:3002"
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY_LLM_SERVICE}
+    networks:
+      - app-network
+  
+  translation_service:
+    build:
+      context: ./translation_service
+    ports:
+      - "3004:3004"
+    environment:
+      - API_KEY=${GEMINI_API_KEY_TRANSLATION}
+    networks:
+      - app-network
+  
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "3001:3001"
+    environment:
+      - BACKEND_ENTRYPOINT=http://orchestrator:3007
+    depends_on:
+      - orchestrator
     networks:
       - app-network

@@ -1,5 +1,5 @@
 Document: 1
-Document Name: /folder/13. FRANZELA ALBA FARA SARE, FELIATA 300G.pdf.md
+Document Name: /breads/13. FRANZELA ALBA FARA SARE, FELIATA 300G.pdf.md
 Document Summary: Product information sheet for a 300g sliced, salt-free white bread, listing its ingredients.
 Document Chunks:
 Chunk: 1
@@ -8,7 +8,7 @@ Chunk Content:
 **INGREDIENTS:** type 650 white wheat flour (78%), water, yeast, enzymes.
 -------------
 Document: 2
-Document Name: /folder/11.PAINEA MANDRIA BRUTARULUI FELIATA 500G.pdf.md
+Document Name: /products/11.PAINEA MANDRIA BRUTARULUI FELIATA 500G.pdf.md
 Document Summary: Product information sheet for The Baker's Pride Bread 500g, listing its ingredients.
 Document Chunks:
 Chunk: 1
@@ -22,11 +22,11 @@ Answer:
   "answer": "### Regarding Egg Content\nBased on the ingredient lists for **White bread, salt-free** and **The Baker's Pride Bread**, neither product lists eggs as an ingredient.",
   "sources": [
     {
-      "document_name": "/folder/13. FRANZELA ALBA FARA SARE, FELIATA 300G.pdf.md",
+      "document_name": "/breads/13. FRANZELA ALBA FARA SARE, FELIATA 300G.pdf.md",
       "quote": "## Ingredients\n**INGREDIENTS:** type 650 white wheat flour (78%), water, yeast, enzymes."
     },
     {
-      "document_name": "/folder/11.PAINEA MANDRIA BRUTARULUI FELIATA 500G.pdf.md",
+      "document_name": "/products/11.PAINEA MANDRIA BRUTARULUI FELIATA 500G.pdf.md",
       "quote": "## Ingredients\nType 650 white wheat flour, 39%, type 480 white wheat flour, 28%, water, potato flakes 5% (dehydrated potatoes 99%), wheat gluten, yeast, non-hydrogenated vegetable fats, iodized salt"
     }
   ]

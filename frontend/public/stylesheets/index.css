@@ -1029,3 +1029,84 @@ span#advancedSaveMsg {
     display: block; 
     height: 16px; 
 }
+
+.search-engine-options-content-container [data-pane] {
+    display: none;
+}
+
+.search-engine-options-content-container [data-pane].active {
+    display: block;
+}
+
+#sources-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: start;
+    height: auto;
+    width: 100%;
+    padding: 10px;
+    gap: 15px;
+    box-sizing: border-box;
+}
+
+#sources-container > h2 {
+    all: unset;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #724D35;
+}
+
+#sources-container-2 {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: start;
+    width: 100%;
+    height: 100%;
+    gap: 15px;
+    box-sizing: border-box;
+    line-break: anywhere;
+}
+
+.file-chunks-container {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    gap: 10px;
+    border: 2px solid rgba(176, 176, 176, 0.5);
+}
+
+.file-chunks-container a {
+    all: unset;
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: #724D35;
+}
+
+.file-chunks-container a:hover {
+    cursor: pointer;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+}
+
+.file-chunks-container-2 {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: start;
+    width: 100%;
+    gap: 5px;
+}
+
+.file-chunk-container h4 {
+    all: unset;
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: rgba(0, 0, 0, 0.6);
+}
+
+.file-chunk-container-2 {
+    padding: 2px;
+    background-color: white;
+    font-size: 0.75rem;
+}

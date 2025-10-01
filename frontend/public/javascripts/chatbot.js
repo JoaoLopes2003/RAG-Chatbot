@@ -1,6 +1,7 @@
 export default class ChatBot {
-    constructor(settings) {
+    constructor(settings, sources) {
         this.settings = settings;
+        this.sources = sources;
 
         this.chatbot = document.querySelector('.chatbot');
         this.form = document.getElementById('chatForm');
@@ -124,6 +125,9 @@ export default class ChatBot {
             }
             
             const data = await response.json();
+
+            const newSourceId = this.sources.add_new_sources(data.sources || []);
+            console.log(`Stored sources entry with ID: ${newSourceId}`);
             
             // Update history
             this.history.push(
@@ -131,7 +135,7 @@ export default class ChatBot {
                 { role: 'assistant', content: data.answer }
             );
 
-            this.addChatbotMessage(data.answer)
+            this.addChatbotMessage(data.answer, newSourceId);
             
         } catch (error) {
             this.addChatbotErrorMessage()
@@ -203,7 +207,7 @@ export default class ChatBot {
     }
 
     // Adding the chatbot message to the DOM
-    addChatbotMessage(content) {
+    addChatbotMessage(content, sourceId) {
         const messagesContainer = document.querySelector('.messages-container')
         const loaderEl = messagesContainer.querySelector(".loader")
         const chatbotMessage = loaderEl.parentElement
@@ -221,14 +225,19 @@ export default class ChatBot {
 
         // Add the option icons refering to this message
         const messageContainer =  chatbotMessage.parentElement
-        messageContainer.innerHTML += `
+        const sourcesForThisMessage = this.sources.get_sources_by_id(sourceId);
+        const hasSources = sourcesForThisMessage && Object.keys(sourcesForThisMessage).length > 0;
+        
+        const iconsHtml = `
             <div class="message-container-assistant-3">
+                ${hasSources ? `<img src="/images/icon-magnifying-glass.svg" alt="Show Sources" class="sources-option" data-source-id="${sourceId}">` : ''}
                 <img src="/images/icon-copy-text.svg" alt="Copy Icon" class="copy-option">
                 <div class="copy-option-activated">
                     <span>&#x2714;</span>
                 </div>
             </div>
-        `
+        `;
+        messageContainer.innerHTML += iconsHtml;
 
         // Add an event listener that links this button to the respective message
         const copyOption = messageContainer.querySelector('.copy-option')
@@ -265,6 +274,32 @@ export default class ChatBot {
             const text = this.copyMessageChatbot(messageContainer.querySelector('.message-wrapper-assistant').innerHTML); 
             navigator.clipboard.writeText(text)
         });
+
+        if (hasSources) {
+            const sourcesOption = messageContainer.querySelector('.sources-option');
+            sourcesOption.addEventListener('click', (event) => {
+                const id = parseInt(event.target.dataset.sourceId, 10);
+
+                // 1. Get the sources HTML and display it in the sources tab
+                const sourcesHtml = this.sources.get_sources_html_by_id(id);
+                const sourcesContainer = document.getElementById('sources-container-2');
+                if (sourcesContainer) {
+                    sourcesContainer.innerHTML = sourcesHtml;
+                }
+
+                // 2. Programmatically click the main "Sources" tab button to switch to it
+                const sourcesTabButton = document.querySelector('.search-engine-options[data-tab="sources"]');
+                if (sourcesTabButton) {
+                    sourcesTabButton.click();
+                }
+
+                // 3. (Optional but recommended) Ensure the side panel is open
+                const filtersButton = document.querySelector('.button-chat-filters img');
+                if (filtersButton && !filtersButton.classList.contains('active')) {
+                    filtersButton.click();
+                }
+            });
+        }
 
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }

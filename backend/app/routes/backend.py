@@ -14,6 +14,7 @@ load_dotenv()
 FILE_DATABASE_ENTRYPOINT = os.getenv("FILE_DATABASE_ENTRYPOINT")
 VECTOR_DATABASE_ENTRYPOINT = os.getenv("VECTOR_DATABASE_ENTRYPOINT")
 LLM_ENTRYPOINT = os.getenv("LLM_ENTRYPOINT")
+TRANSLATION_SERVICE_ENTRYPOINT = os.getenv("TRANSLATION_SERVICE_ENTRYPOINT")
 
 def check_connections():
     if not FILE_DATABASE_ENTRYPOINT or not VECTOR_DATABASE_ENTRYPOINT:
@@ -156,11 +157,35 @@ async def answer_prompt(request: AnswerPromptRequest):
 
     try:
         async with httpx.AsyncClient(timeout=120.0) as client:
-            
+
+            # If the input language is Romanian, translate the prompt to English first
+            if input_language == "ro":
+                print(f"Step 0: Translating prompt from Romanian to English for query '{prompt}'...", flush=True)
+                translation_payload = {
+                    "query": prompt,
+                    "origin": "ro",
+                    "target": "en"
+                }
+                response_translation_in = await client.post(
+                    f"{TRANSLATION_SERVICE_ENTRYPOINT}/query_translator/",
+                    json=translation_payload,
+                    timeout=60.0
+                )
+
+                if response_translation_in.status_code != status.HTTP_200_OK:
+                    raise HTTPException(
+                        status_code=response_translation_in.status_code,
+                        detail=f"Failed to translate prompt from RO to EN: {response_translation_in.text}"
+                    )
+                
+                translated_data = response_translation_in.json()
+                prompt = translated_data["response"] # Update prompt with the translated text
+                print(f"Step 0: Success. Translated prompt is now: '{prompt}'", flush=True)
+
+
             # Step 1: Get relevant document/chunk IDs from the Vector Database
-            print(f"Step 1: Getting relevant IDs for query '{request.prompt}'...", flush=True)
+            print(f"Step 1: Getting relevant IDs for query '{prompt}'...", flush=True)
             
-            # Define parameters for the GET request
             vector_db_payload = {
                 'query': prompt,
                 'retrieve_limit': retrieve_limit,
@@ -168,7 +193,6 @@ async def answer_prompt(request: AnswerPromptRequest):
                 'source_files': source_files
             }
 
-            # Select the correct endpoint based on the request
             endpoint = "/retrievechunks" if retrieve_only_chunks else "/retrievefiles"
             
             response_vector_db = await client.post(
@@ -182,7 +206,6 @@ async def answer_prompt(request: AnswerPromptRequest):
                     detail=f"Failed to retrieve from Vector DB: {response_vector_db.text}"
                 )
 
-            # Parse the JSON
             vector_db_data = response_vector_db.json()
             print("Step 1: Success.", flush=True)
 
@@ -196,17 +219,11 @@ async def answer_prompt(request: AnswerPromptRequest):
                 file_db_endpoint = "/getfilescontents"
             else:
                 retrieved_chunks = GetRelevantChunksResponse(**vector_db_data)
-                
-                chunks = []
-                for path, file_chunks in retrieved_chunks.files_chunks.items():
-                    for chunk in file_chunks.chunks:
-
-                        chunks.append({
-                            "path": path,
-                            "start_pos": chunk.start_pos,
-                            "end_pos": chunk.end_pos
-                        })
-
+                chunks = [
+                    {"path": path, "start_pos": chunk.start_pos, "end_pos": chunk.end_pos}
+                    for path, file_chunks in retrieved_chunks.files_chunks.items()
+                    for chunk in file_chunks.chunks
+                ]
                 file_db_payload = {'chunks': chunks}
                 file_db_endpoint = "/getchunkscontents"
             
@@ -229,9 +246,10 @@ async def answer_prompt(request: AnswerPromptRequest):
             print("Step 3: Sending context to LLM service...", flush=True)
             
             if not retrieve_only_chunks:
-                final_prompt = build_prompt_from_files(request.prompt, file_contents_data["documents"])
+                final_prompt = build_prompt_from_files(prompt, file_contents_data["documents"])
             else:
-                final_prompt = build_prompt_from_chunks(request.prompt, file_contents_data["documents"], retrieved_chunks.files_chunks)
+                final_prompt = build_prompt_from_chunks(prompt, file_contents_data["documents"], retrieved_chunks.files_chunks)
+            
             llm_payload = {'prompt': final_prompt, "chunking": retrieve_only_chunks}
             
             response_llm = await client.post(
@@ -250,6 +268,30 @@ async def answer_prompt(request: AnswerPromptRequest):
 
             answer = llm_data["answer"]
             sources = llm_data["sources"]
+
+            # If the desired output language is Romanian, translate the English answer
+            if output_language == "ro":
+                print("Step 4: Translating final answer from English to Romanian...", flush=True)
+                translation_payload = {
+                    "query": answer,
+                    "origin": "en",
+                    "target": "ro"
+                }
+                response_translation_out = await client.post(
+                    f"{TRANSLATION_SERVICE_ENTRYPOINT}/query_translator/",
+                    json=translation_payload,
+                    timeout=60.0
+                )
+
+                if response_translation_out.status_code != status.HTTP_200_OK:
+                    raise HTTPException(
+                        status_code=response_translation_out.status_code,
+                        detail=f"Failed to translate answer from EN to RO: {response_translation_out.text}"
+                    )
+                
+                translated_data = response_translation_out.json()
+                answer = translated_data["response"] # Update answer with the final translation
+                print("Step 4: Success.", flush=True)
             
             return AnswerPromptResponse(answer=answer, sources=sources)
 

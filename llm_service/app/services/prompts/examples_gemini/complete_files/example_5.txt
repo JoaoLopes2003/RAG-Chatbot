@@ -1,5 +1,5 @@
 Document: 1
-Document Name: /folder/10. SECARA SPECIALA FELIATA 500G.pdf.md
+Document Name: /Fise produse - Agropan/10. SECARA SPECIALA FELIATA 500G.pdf.md
 Document Content:
 # Special Rye, sliced – 500g
 
@@ -15,7 +15,7 @@ Put the Special Rye Bread on the table, a filling bread but above all, a healthy
 | Proteins                                | 14.8 g          |
 -------------
 Document: 2
-Document Name: /folder/12. FELIUTA CU SEMINTE AMBALATA 400G.pdf.md
+Document Name: /products/12. FELIUTA CU SEMINTE AMBALATA 400G.pdf.md
 Document Content:
 # The Little Slice with Seeds, packaged – 400g
 
@@ -33,19 +33,19 @@ Answer:
   "answer": "### Pre-Workout Bread Recommendations\nWhile I can't give specific health advice, I can suggest products based on their descriptions for an active lifestyle.\n\nBased on the documents, two good options could be:\n- **Special Rye, sliced – 500g:** This bread is described as a healthy choice that helps restore an **optimal level of energy** due to its magnesium content. It is also very high in protein (**14.8 g** per 100g).\n- **The Little Slice with Seeds, packaged – 400g:** This bread is described as being **full of nutritious seeds** and rich in fiber. It also has a high protein content (**13.9 g** per 100g).",
   "sources": [
     {
-      "document_name": "/folder/10. SECARA SPECIALA FELIATA 500G.pdf.md",
+      "document_name": "/Fise produse - Agropan/10. SECARA SPECIALA FELIATA 500G.pdf.md",
       "quote": "Rye and whole grains are a rich source of magnesium, a mineral that acts on the body, restoring an optimal level of energy..."
     },
     {
-      "document_name": "/folder/10. SECARA SPECIALA FELIATA 500G.pdf.md",
+      "document_name": "/Fise produse - Agropan/10. SECARA SPECIALA FELIATA 500G.pdf.md",
       "quote": "| Proteins | 14.8 g |"
     },
     {
-      "document_name": "/folder/12. FELIUTA CU SEMINTE AMBALATA 400G.pdf.md",
+      "document_name": "/products/12. FELIUTA CU SEMINTE AMBALATA 400G.pdf.md",
       "quote": "Bread with a dense crumb, full of nutritious and filling seeds..."
     },
     {
-      "document_name": "/folder/12. FELIUTA CU SEMINTE AMBALATA 400G.pdf.md",
+      "document_name": "/products/12. FELIUTA CU SEMINTE AMBALATA 400G.pdf.md",
       "quote": "| Proteins | 13.9 g |"
     }
   ]

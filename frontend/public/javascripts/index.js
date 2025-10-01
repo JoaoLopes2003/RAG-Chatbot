@@ -41,14 +41,9 @@ document.addEventListener('DOMContentLoaded', function () {
             menuOpen = false;
         }
     });
-});
 
-document.addEventListener('DOMContentLoaded', function () {
-    const searchEngineContainer = document.querySelector('.search-engine-container');
+    // FILTERS/SEARCH ENGINE PANEL TOGGLE LOGIC
     const filtersButton = document.querySelector('.button-chat-filters img');
-    const chatbot = document.querySelector('.chatbot');
-    const navbar = document.querySelector('.navbar');
-
     let filtersOpen = false;
 
     filtersButton.addEventListener('click', function () {
@@ -79,5 +74,27 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             filtersOpen = false;
         }
+    });
+
+    const tabButtons = document.querySelectorAll('.search-engine-options-container .search-engine-options');
+    const contentPanes = document.querySelectorAll('.search-engine-options-content-container [data-pane]');
+
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const targetTab = button.dataset.tab;
+
+            // Deactivate all other buttons and panes first
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            contentPanes.forEach(pane => pane.classList.remove('active'));
+
+            // Activate the clicked button
+            button.classList.add('active');
+
+            // Activate the corresponding content pane
+            const targetPane = document.querySelector(`.search-engine-options-content-container [data-pane="${targetTab}"]`);
+            if (targetPane) {
+                targetPane.classList.add('active');
+            }
+        });
     });
 });

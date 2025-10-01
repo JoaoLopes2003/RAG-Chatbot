@@ -18,15 +18,18 @@ except KeyError:
 
 genai.configure(api_key=api_key)
 
+for m in genai.list_models():
+    print(m.name, flush=True)
+
 # Model configured for the "complete files" workflow
 model_complete_files = genai.GenerativeModel(
-    model_name='gemini-1.5-pro-latest',
+    model_name='gemini-2.5-pro',
     system_instruction=SYSTEM_INSTRUCTIONS_COMPLETE_FILES
 )
 
 # Model configured for the "chunks" workflow
 model_chunks = genai.GenerativeModel(
-    model_name='gemini-1.5-pro-latest',
+    model_name='gemini-2.5-pro',
     system_instruction=SYSTEM_INSTRUCTIONS_CHUNKS
 )
 

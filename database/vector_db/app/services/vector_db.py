@@ -30,7 +30,10 @@ except KeyError:
 
 genai.configure(api_key=api_key)
 
-gemini_model = genai.GenerativeModel('gemini-1.5-flash-latest')
+for m in genai.list_models():
+    print(m.name, flush=True)
+
+gemini_model = genai.GenerativeModel('gemini-2.5-pro')
 
 class Vector_db():
     def __init__(self, embeddingDimension=768):
